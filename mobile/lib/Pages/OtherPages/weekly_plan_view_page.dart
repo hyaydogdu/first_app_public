@@ -41,7 +41,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
           WeekDayCard(day: "Thursday", weeklyPlan: widget.weeklyPlan),
           WeekDayCard(day: "Friday", weeklyPlan: widget.weeklyPlan),
           WeekDayCard(day: "Saturday", weeklyPlan: widget.weeklyPlan),
-          WeekDayCard(day: "Sunday", weeklyPlan: widget.weeklyPlan),
+          // WeekDayCard(day: "Sunday", weeklyPlan: widget.weeklyPlan),
         ],
       ),
     );
