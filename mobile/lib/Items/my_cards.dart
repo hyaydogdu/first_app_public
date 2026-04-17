@@ -268,14 +268,16 @@ class WeekDayCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 onePiece(
-                  alignment: Alignment.topLeft,
+                  alignment: Alignment.centerLeft,
                   boxRight: 1,
+                  height: defaultHeight * 3,
                   child: Text(day, style: textStyleM),
                 ),
 
                 onePiece(
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.topLeft,
                   boxRight: 1,
+                  height: defaultHeight * 2,
                   child: Text(
                     findDay(day)?.name ?? "Rest Day",
                     style: textStyleS,
@@ -289,8 +291,9 @@ class WeekDayCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 onePiece(
-                  alignment: Alignment.topCenter,
-                  boxRight: 0,
+                  alignment: Alignment.centerRight,
+                  boxLeft: 1,
+                  height: defaultHeight * 5,
                   child: Icon(Icons.work_history_outlined, size: 48),
                 ),
               ],
@@ -303,19 +306,27 @@ class WeekDayCard extends StatelessWidget {
 
   Widget onePiece({
     required Alignment alignment,
-    required int boxRight,
+    int? boxRight,
+    int? boxLeft,
     required Widget child,
+    required double height,
   }) {
-    return Row(
-      children: [
-        for (int i = 0; i < boxRight; i++) SizedBox(width: defaultHeight),
-        Expanded(
-          child: Box(
-            boxColor: color_2,
-            child: Align(alignment: alignment, child: child),
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(height: height),
+      child: Row(
+        children: [
+          if (boxRight != null)
+            for (int i = 0; i < boxRight; i++) SizedBox(width: defaultHeight),
+          Expanded(
+            child: Box(
+              boxColor: color_2,
+              child: Align(alignment: alignment, child: child),
+            ),
           ),
-        ),
-      ],
+          if (boxLeft != null)
+            for (int i = 0; i < boxLeft; i++) SizedBox(width: defaultHeight),
+        ],
+      ),
     );
   }
 
