@@ -262,27 +262,39 @@ class WeekDayCard extends StatelessWidget {
       edgeSpaceHorizontal: true,
       elevation: 4,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          onePiece(
-            alignment: Alignment.centerLeft,
-            boxUp: 0,
-            boxDown: 0,
-            child: Text(day, style: textStyleM),
-          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                onePiece(
+                  alignment: Alignment.topLeft,
+                  boxRight: 1,
+                  child: Text(day, style: textStyleM),
+                ),
 
-          onePiece(
-            alignment: Alignment.centerLeft,
-            boxUp: 1,
-            boxDown: 1,
-            child: Text(findDay(day)?.name ?? "Rest Day", style: textStyleS),
+                onePiece(
+                  alignment: Alignment.centerRight,
+                  boxRight: 1,
+                  child: Text(
+                    findDay(day)?.name ?? "Rest Day",
+                    style: textStyleS,
+                  ),
+                ),
+              ],
+            ),
           ),
-          onePiece(
-            alignment: Alignment.center,
-            boxUp: 1,
-            boxDown: 0,
-            child: Icon(Icons.work_history_outlined, size: 48),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                onePiece(
+                  alignment: Alignment.topCenter,
+                  boxRight: 0,
+                  child: Icon(Icons.work_history_outlined, size: 48),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -291,26 +303,19 @@ class WeekDayCard extends StatelessWidget {
 
   Widget onePiece({
     required Alignment alignment,
-    required int boxUp,
-    required int boxDown,
+    required int boxRight,
     required Widget child,
   }) {
-    return Flexible(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          for (int i = 0; i < boxUp; i++) SizedBox(height: defaultHeight * 2),
-          Box(
+    return Row(
+      children: [
+        for (int i = 0; i < boxRight; i++) SizedBox(width: defaultHeight),
+        Expanded(
+          child: Box(
             boxColor: color_2,
-            child: SizedBox(
-              width: double.infinity,
-              child: Align(alignment: alignment, child: child),
-            ),
+            child: Align(alignment: alignment, child: child),
           ),
-          for (int i = 0; i < boxDown; i++) SizedBox(height: defaultHeight * 2),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

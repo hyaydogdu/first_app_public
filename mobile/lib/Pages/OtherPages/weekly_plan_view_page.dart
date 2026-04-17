@@ -32,7 +32,8 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
       body: ListView(
         children: [
           Text(
-            "${widget.weeklyPlan.name.toUpperCase()} plan",
+            "${widget.weeklyPlan.name.toUpperCase()} ",
+            textAlign: TextAlign.center,
             style: textStyleL,
           ),
           WeekDayCard(day: "Monday", weeklyPlan: widget.weeklyPlan),
@@ -41,7 +42,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
           WeekDayCard(day: "Thursday", weeklyPlan: widget.weeklyPlan),
           WeekDayCard(day: "Friday", weeklyPlan: widget.weeklyPlan),
           WeekDayCard(day: "Saturday", weeklyPlan: widget.weeklyPlan),
-          // WeekDayCard(day: "Sunday", weeklyPlan: widget.weeklyPlan),
+          WeekDayCard(day: "Sunday", weeklyPlan: widget.weeklyPlan),
         ],
       ),
     );
