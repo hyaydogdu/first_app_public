@@ -29,9 +29,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
           },
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: ListView(
         children: [
           Text(
             "${widget.weeklyPlan.name.toUpperCase()} plan",

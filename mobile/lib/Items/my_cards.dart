@@ -272,12 +272,12 @@ class WeekDayCard extends StatelessWidget {
             child: Text(day, style: textStyleM),
           ),
 
-          // onePiece(
-          //   alignment: Alignment.centerLeft,
-          //   boxUp: 1,
-          //   boxDown: 0,
-          //   child: Text(WorkoutApi.getWorkoutById(1), style: textStyleS),
-          // ),
+          onePiece(
+            alignment: Alignment.centerLeft,
+            boxUp: 1,
+            boxDown: 1,
+            child: Text(findDay(day)?.name ?? "Rest Day", style: textStyleS),
+          ),
           onePiece(
             alignment: Alignment.center,
             boxUp: 1,
@@ -312,5 +312,26 @@ class WeekDayCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  WorkoutUiModel? findDay(String day) {
+    switch (day) {
+      case "Monday":
+        return weeklyPlan.week!.mondayWorkout;
+      case "Tuesday":
+        return weeklyPlan.week!.tuesdayWorkout;
+      case "Wednesday":
+        return weeklyPlan.week!.wednesdayWorkout;
+      case "Thursday":
+        return weeklyPlan.week!.thursdayWorkout;
+      case "Friday":
+        return weeklyPlan.week!.fridayWorkout;
+      case "Saturday":
+        return weeklyPlan.week!.saturdayWorkout;
+      case "Sunday":
+        return weeklyPlan.week!.sundayWorkout;
+      default:
+        return null;
+    }
   }
 }
