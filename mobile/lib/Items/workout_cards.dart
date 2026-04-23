@@ -3,8 +3,7 @@ import 'package:first_app/models/workout_set_ui_model.dart';
 import 'package:flutter/material.dart';
 import 'package:first_app/models/workout_exercise_ui_model.dart';
 import 'package:first_app/Items/Barrel/item_barrel.dart';
-
-const String apiBaseUrl = "http://10.0.2.2:5018";
+import 'package:first_app/Services/api_config.dart';
 
 class ViewWorkoutExerciseCard extends StatelessWidget {
   final WorkoutExerciseUiModel we;
@@ -423,7 +422,7 @@ Widget workoutImage(String imageUrl) {
   return ClipRRect(
     borderRadius: BorderRadius.circular(12),
     child: Image.network(
-      apiBaseUrl + imageUrl,
+      ApiConfig.endpoint(imageUrl),
       height: 56,
       width: 56,
       fit: BoxFit.cover,

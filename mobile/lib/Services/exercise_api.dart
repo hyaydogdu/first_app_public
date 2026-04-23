@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 import '../models/exercise_ui_model.dart';
 
 class ExerciseApi {
-  static const String baseUrl = "http://10.0.2.2:5018/api/exercises";
+  static String get baseUrl => ApiConfig.endpoint('/api/exercises');
 
   // GET - tüm exerciselar
   static Future<List<ExerciseUiModel>> getAllExercises() async {

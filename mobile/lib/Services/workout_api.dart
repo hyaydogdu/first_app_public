@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:first_app/models/workout_exercise_ui_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'api_config.dart';
 import '../models/workout_ui_model.dart';
 
 class WorkoutApi {
-  static const String baseUrl = "http://10.0.2.2:5018/api/workout";
+  static String get baseUrl => ApiConfig.endpoint('/api/workout');
 
   // GET - workout listesi
   static Future<List<WorkoutUiModel>> getWorkouts() async {

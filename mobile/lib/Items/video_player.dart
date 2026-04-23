@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:first_app/Services/api_config.dart';
 import 'package:video_player/video_player.dart';
 
 class AppVideoPlayer extends StatefulWidget {
@@ -45,7 +46,7 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   Future<void>? _initFuture;
   String? _error;
 
-  String baseUrl = "http://10.0.2.2:5018";
+  String baseUrl = ApiConfig.baseUrl;
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   @override
   void didUpdateWidget(covariant AppVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.url != widget.url || baseUrl != baseUrl) {
+    if (oldWidget.url != widget.url) {
       _boot();
     }
   }
