@@ -1,0 +1,53 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
+
+# Flutter / Dart
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/build/
+**/coverage/
+**/ios/Flutter/.last_build_id
+**/app.*.symbols
+**/app.*.map.json
+
+# Android / Gradle
+**/.gradle/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+
+# .NET
+**/bin/
+**/obj/
+**/build-check/
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+
+# Local app settings / secrets
+**/appsettings.Local.json
+**/appsettings.*.Local.json
+**/.env
+**/.env.*
+
+# Mobile signing material
+**/key.properties
+**/*.keystore
+**/*.jks
