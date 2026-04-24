@@ -233,6 +233,7 @@ namespace FirstApp.Api.Controllers
                         Id = we.Id,
                         ExerciseId = we.ExerciseId,
                         ExerciseName = we.Exercise.Name,
+                        ExerciseVideoUrl = we.Exercise.VideoUrl,
                         ExerciseImageUrl = we.Exercise.ImageUrl,
                         OrderIndex = we.OrderIndex,
                         Sets = we.Sets

@@ -24,8 +24,8 @@ class WorkoutExerciseUiModel {
       id: json['id'],
       exerciseId: json['exerciseId'],
       exerciseName: json['exerciseName'],
-      exerciseImageUrl: json['exerciseImageUrl'],
-      videoUrl: json['videoUrl'],
+      exerciseImageUrl: json['exerciseImageUrl'] ?? json['imageUrl'],
+      videoUrl: json['videoUrl'] ?? json['exerciseVideoUrl'],
       orderIndex: json['orderIndex'],
       setList: (json['sets'] as List<dynamic>)
           .map((e) => WorkoutSetUiModel.fromJson(e))

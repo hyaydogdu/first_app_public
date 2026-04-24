@@ -229,7 +229,12 @@ class _WorkoutPlayPageState extends State<WorkoutPlayPage> {
                           boxColor: accentColor,
                           edgeSpaceAllBig: true,
                           softCorners: true,
-                          child: AppVideoPlayer(url: currentExercise.videoUrl),
+                          child: AppVideoPlayer(
+                            key: ValueKey(
+                              "${currentExercise.exerciseId}-${currentExercise.orderIndex}-${currentExercise.videoUrl ?? 'fallback'}",
+                            ),
+                            url: currentExercise.videoUrl,
+                          ),
                         ),
                         Column(
                           children: _isResting

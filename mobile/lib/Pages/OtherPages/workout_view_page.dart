@@ -22,6 +22,7 @@ class WorkoutViewPage extends DefaultPage {
 class _WorkoutPageState extends State<WorkoutViewPage> {
   final Map<int, bool> expandedMap = {};
   bool isEditing = false;
+  bool isLoadingWorkout = false;
   late WorkoutUiModel currentWorkout;
 
   late TextEditingController nameController;
@@ -35,6 +36,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
     descriptionController = TextEditingController(
       text: currentWorkout.description ?? "",
     );
+    _loadWorkoutDetails();
   }
 
   @override
@@ -46,6 +48,30 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
 
   void refreshPage() {
     setState(() {});
+  }
+
+  Future<void> _loadWorkoutDetails() async {
+    setState(() {
+      isLoadingWorkout = true;
+    });
+
+    try {
+      final workout = await WorkoutApi.getWorkoutById(widget.workout.id);
+      if (!mounted) return;
+
+      setState(() {
+        currentWorkout = workout;
+        nameController.text = workout.name;
+        descriptionController.text = workout.description ?? "";
+      });
+    } catch (e) {
+      debugPrint("Failed to load workout details: $e");
+    } finally {
+      if (!mounted) return;
+      setState(() {
+        isLoadingWorkout = false;
+      });
+    }
   }
 
   Future<void> _save() async {
@@ -158,8 +184,10 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
             defaultHeight * 3 / 4,
           ),
           child: MyTextButton(
-            text: "Go to Workout",
+            text: isLoadingWorkout ? "Loading..." : "Go to Workout",
+            bgColor: isLoadingWorkout ? Colors.grey.shade400 : null,
             onPressed: () async {
+              if (isLoadingWorkout) return;
               await Navigator.push(
                 context,
                 MaterialPageRoute(

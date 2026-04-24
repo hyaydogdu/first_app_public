@@ -28,7 +28,7 @@ class AppVideoPlayer extends StatefulWidget {
   const AppVideoPlayer({
     super.key,
     required this.url,
-    this.fallbackPath = "/exercises/Videos/Video1.mp4",
+    this.fallbackPath = "",
     this.borderRadius = 16,
     this.backgroundColor = Colors.black,
     this.autoPlay = false,
@@ -45,6 +45,7 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   VideoPlayerController? _controller;
   Future<void>? _initFuture;
   String? _error;
+  int _bootVersion = 0;
 
   String baseUrl = ApiConfig.baseUrl;
 
@@ -57,15 +58,26 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   @override
   void didUpdateWidget(covariant AppVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.url != widget.url) {
+    final sourceChanged =
+        oldWidget.url != widget.url ||
+        oldWidget.fallbackPath != widget.fallbackPath;
+    final behaviorChanged =
+        oldWidget.autoPlay != widget.autoPlay ||
+        oldWidget.looping != widget.looping;
+
+    if (sourceChanged || behaviorChanged) {
       _boot();
     }
   }
 
   String _resolveUrl() {
     final raw = (widget.url == null || widget.url!.trim().isEmpty)
-        ? widget.fallbackPath
+        ? widget.fallbackPath.trim()
         : widget.url!.trim();
+
+    if (raw.isEmpty) {
+      throw StateError("Video URL is empty");
+    }
 
     // Zaten tam URL ise dokunma
     if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
@@ -80,6 +92,7 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   }
 
   void _boot() {
+    final bootVersion = ++_bootVersion;
     _error = null;
     _disposeController();
 
@@ -89,6 +102,10 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
     final c = VideoPlayerController.networkUrl(Uri.parse(resolved));
     _controller = c;
 
+    if (mounted) {
+      setState(() {});
+    }
+
     _initFuture = () async {
       try {
         await c.initialize();
@@ -97,9 +114,12 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
           await c.play();
         }
       } catch (e) {
+        if (bootVersion != _bootVersion) return;
         _error = e.toString();
       }
-      if (mounted) setState(() {});
+      if (mounted && bootVersion == _bootVersion) {
+        setState(() {});
+      }
     }();
   }
 
