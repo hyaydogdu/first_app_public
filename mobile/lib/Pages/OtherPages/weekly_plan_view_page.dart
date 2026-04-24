@@ -32,7 +32,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
       body: ListView(
         children: [
           Text(
-            "${widget.weeklyPlan.name.toUpperCase()} ",
+            TextCase(widget.weeklyPlan.name, TextCaseMode.title),
             textAlign: TextAlign.center,
             style: textStyleL,
           ),

@@ -56,7 +56,7 @@ class TextBox extends StatelessWidget {
         children: [
           if (text != null && text!.isNotEmpty)
             Text(
-              caseMode != null ? applyTextCase(text!, caseMode!) : text!,
+              caseMode != null ? TextCase(text!, caseMode!) : text!,
               style: textStyle,
               textAlign: TextAlign.center,
             ),
@@ -108,7 +108,7 @@ class EditText extends StatelessWidget {
   }
 }
 
-String applyTextCase(String input, TextCaseMode mode) {
+String TextCase(String input, TextCaseMode mode) {
   switch (mode) {
     case TextCaseMode.upper:
       return input.toUpperCase();
