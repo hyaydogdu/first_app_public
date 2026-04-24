@@ -67,10 +67,11 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
     } catch (e) {
       debugPrint("Failed to load workout details: $e");
     } finally {
-      if (!mounted) return;
-      setState(() {
-        isLoadingWorkout = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoadingWorkout = false;
+        });
+      }
     }
   }
 
