@@ -1,0 +1,56 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter: mobile debug (VS Code)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/mobile",
+      "program": "${workspaceFolder}/mobile/lib/main.dart",
+      "flutterMode": "debug",
+      "console": "debugConsole"
+    },
+    {
+      "name": "Flutter: windows debug (emulator yok)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/mobile",
+      "program": "${workspaceFolder}/mobile/lib/main.dart",
+      "flutterMode": "debug",
+      "deviceId": "windows",
+      "console": "debugConsole"
+    },
+    {
+      "name": "Flutter: chrome debug (emulator yok)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/mobile",
+      "program": "${workspaceFolder}/mobile/lib/main.dart",
+      "flutterMode": "debug",
+      "deviceId": "chrome",
+      "console": "debugConsole"
+    },
+    {
+      "name": "Flutter: web-server (VS Code panel)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/mobile",
+      "program": "${workspaceFolder}/mobile/lib/main.dart",
+      "flutterMode": "debug",
+      "deviceId": "web-server",
+      "toolArgs": [
+        "--web-port",
+        "7357"
+      ],
+      "console": "debugConsole"
+    },
+    {
+      "name": "Flutter: mobile profile",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/mobile",
+      "program": "${workspaceFolder}/mobile/lib/main.dart",
+      "flutterMode": "profile"
+    }
+  ]
+}

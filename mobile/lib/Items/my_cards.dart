@@ -279,7 +279,10 @@ class WeekDayCard extends StatelessWidget {
                   boxRight: 1,
                   height: defaultHeight * 2,
                   child: Text(
-                    findDay(day)?.name ?? "Rest Day",
+                    applyTextCase(
+                      findDay(day)?.name ?? "REST DAY",
+                      TextCaseMode.title,
+                    ),
                     style: textStyleS,
                   ),
                 ),

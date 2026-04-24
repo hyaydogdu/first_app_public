@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:first_app/Items/Barrel/item_barrel.dart';
 
-enum TextCaseMode { sentence, upper, lower }
+enum TextCaseMode { sentence, title, upper, lower }
 
 class StatBox extends StatelessWidget {
   final String text;
@@ -115,6 +115,30 @@ String applyTextCase(String input, TextCaseMode mode) {
 
     case TextCaseMode.lower:
       return input.toLowerCase();
+
+    case TextCaseMode.title:
+      final lower = input.toLowerCase();
+      final buffer = StringBuffer();
+      var capitalizeNext = true;
+
+      for (int i = 0; i < lower.length; i++) {
+        final ch = lower[i];
+
+        if (ch.trim().isEmpty) {
+          buffer.write(ch);
+          capitalizeNext = true;
+          continue;
+        }
+
+        if (capitalizeNext) {
+          buffer.write(ch.toUpperCase());
+          capitalizeNext = false;
+        } else {
+          buffer.write(ch);
+        }
+      }
+
+      return buffer.toString();
 
     case TextCaseMode.sentence:
       if (input.isEmpty) return input;

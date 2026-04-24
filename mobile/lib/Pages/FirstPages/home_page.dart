@@ -133,22 +133,6 @@ class _HomePageState extends State<HomePage> {
               weeklyPlan: weeklyPlans.first,
               onCardClosed: _loadWeeklyPlans,
             ),
-            Text(
-              "Plan: ${weeklyPlans.first.name}",
-              style: textStyleM,
-              textAlign: TextAlign.center,
-            ),
-
-            Text(
-              "Monday workout: ${weeklyPlans.first.week?.mondayWorkout?.name ?? '-'}",
-              style: textStyleM,
-              textAlign: TextAlign.center,
-            ),
-            Text(
-              "Tuesday workout: ${weeklyPlans.first.week?.tuesdayWorkout?.name ?? '-'}",
-              style: textStyleM,
-              textAlign: TextAlign.center,
-            ),
           ],
         ],
       ),
