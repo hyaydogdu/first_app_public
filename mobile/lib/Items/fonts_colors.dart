@@ -20,6 +20,11 @@ const TextStyle textStyleM = TextStyle(
 
 const TextStyle textStyleL = TextStyle(
   fontFamily: "Urbanist",
+  fontSize: 30,
+  color: Colors.black, // buraya istediğin global renk
+);
+const TextStyle textStyleXL = TextStyle(
+  fontFamily: "Urbanist",
   fontSize: 36,
   color: Colors.black, // buraya istediğin global renk
 );

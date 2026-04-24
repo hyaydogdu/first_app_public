@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class BorderBox extends StatelessWidget {
   final Color boxColor;
+  final Color? strokeColor;
   final Widget child;
-  final Color strokeColor;
   final bool? edgeSpaceAllBig;
   final bool? edgeSpaceAllSmall;
   final bool? edgeSpaceHorizontal;
@@ -15,6 +15,7 @@ class BorderBox extends StatelessWidget {
   const BorderBox({
     super.key,
     required this.boxColor,
+    this.strokeColor,
     required this.child,
     this.edgeSpaceAllBig,
     this.edgeSpaceHorizontal,
@@ -22,7 +23,7 @@ class BorderBox extends StatelessWidget {
     this.edgeSpaceAllSmall,
     this.onTap,
     this.elevation,
-  }) : strokeColor = Colors.black;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class BorderBox extends StatelessWidget {
         elevation: elevation ?? 0,
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: const BorderSide(color: Colors.black, width: 1),
+          side: BorderSide(color: strokeColor ?? Colors.black, width: 1),
         ),
         clipBehavior: Clip
             .antiAlias, // köşelerden taşmayı engeller (video/resim için şart)

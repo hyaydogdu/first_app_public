@@ -34,7 +34,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
           Text(
             TextCase(widget.weeklyPlan.name, TextCaseMode.title),
             textAlign: TextAlign.center,
-            style: textStyleL,
+            style: textStyleXL,
           ),
           WeekDayCard(day: "Monday", weeklyPlan: widget.weeklyPlan),
           WeekDayCard(day: "Tuesday", weeklyPlan: widget.weeklyPlan),
