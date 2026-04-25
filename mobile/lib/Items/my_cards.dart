@@ -255,71 +255,73 @@ class WeekDayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color cardColor = findDay(day) != null
+    WorkoutUiModel? theWorkout = findDayWorkout(day);
+    final Color cardColor = theWorkout != null
         ? color_2.withValues(alpha: 0.5)
         : color_2;
-    return BorderBox(
-      boxColor: cardColor,
-      strokeColor: findDay(day) != null ? null : cardColor,
-      softCorners: true,
-      edgeSpaceAllSmall: true,
-      edgeSpaceHorizontal: true,
-      elevation: 4,
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                onePiece(
-                  alignment: Alignment.centerLeft,
-                  boxRight: 1,
-                  height: defaultHeight * 3,
-                  child: Text(day, style: textStyleL),
+    return InkWell(
+      onTap: theWorkout == null
+          ? null
+          : () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => WorkoutViewPage(workout: theWorkout),
                 ),
-
-                onePiece(
-                  alignment: Alignment.topLeft,
-                  boxRight: 1,
-                  height: defaultHeight * 2,
-                  child: Text(
-                    TextCase(
-                      findDay(day)?.name ?? "REST DAY",
-                      TextCaseMode.title,
-                    ),
-                    style: textStyleS,
+              );
+            },
+      child: BorderBox(
+        boxColor: cardColor,
+        strokeColor: theWorkout != null ? null : cardColor,
+        softCorners: true,
+        edgeSpaceAllSmall: true,
+        edgeSpaceHorizontal: true,
+        elevation: 4,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  onePiece(
+                    alignment: Alignment.centerLeft,
+                    boxRight: 1,
+                    height: defaultHeight * 3,
+                    child: Text(day, style: textStyleL),
                   ),
-                ),
-              ],
+
+                  onePiece(
+                    alignment: Alignment.topLeft,
+                    boxRight: 1,
+                    height: defaultHeight * 2,
+                    child: Text(
+                      textCase(
+                        theWorkout?.name ?? "REST DAY",
+                        TextCaseMode.title,
+                      ),
+                      style: textStyleS,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                onePiece(
-                  alignment: Alignment.centerRight,
-                  boxLeft: 1,
-                  height: defaultHeight * 5,
-                  child: findDay(day) != null
-                      ? InkWell(
-                          onTap: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    WorkoutViewPage(workout: findDay(day)!),
-                              ),
-                            );
-                          },
-                          child: Icon(Icons.arrow_right, size: 48),
-                        )
-                      : Icon(Icons.hotel, size: 36),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  onePiece(
+                    alignment: Alignment.centerRight,
+                    boxLeft: 1,
+                    height: defaultHeight * 5,
+                    child: findDayWorkout(day) != null
+                        ? Icon(Icons.arrow_right, size: 48)
+                        : Icon(Icons.hotel, size: 36),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -350,7 +352,7 @@ class WeekDayCard extends StatelessWidget {
     );
   }
 
-  WorkoutUiModel? findDay(String day) {
+  WorkoutUiModel? findDayWorkout(String day) {
     switch (day) {
       case "Monday":
         return weeklyPlan.week!.mondayWorkout;
