@@ -6,6 +6,8 @@ public class Workout
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
 
+    public bool isDefault { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // WORKOUT = EXERCISE LIST

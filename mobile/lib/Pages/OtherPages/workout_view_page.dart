@@ -132,24 +132,25 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
           child: BarIconButtons(onPressed: () => Navigator.pop(context)),
         ),
         actions: [
-          SizedBox(
-            width: kToolbarHeight,
-            height: kToolbarHeight,
-            child: BarIconButtons(
-              buttonIcon: Icon(
-                isEditing ? Icons.check_rounded : Icons.edit_note_sharp,
+          if (!currentWorkout.isDefault)
+            SizedBox(
+              width: kToolbarHeight,
+              height: kToolbarHeight,
+              child: BarIconButtons(
+                buttonIcon: Icon(
+                  isEditing ? Icons.check_rounded : Icons.edit_note_sharp,
+                ),
+                onPressed: () async {
+                  if (isEditing) {
+                    await _save();
+                  } else {
+                    setState(() {
+                      isEditing = true;
+                    });
+                  }
+                },
               ),
-              onPressed: () async {
-                if (isEditing) {
-                  await _save();
-                } else {
-                  setState(() {
-                    isEditing = true;
-                  });
-                }
-              },
             ),
-          ),
         ],
       ),
       body: isEditing

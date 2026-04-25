@@ -109,6 +109,9 @@ namespace FirstApp.Api.Controllers
             if (workout == null)
                 return NotFound();
 
+            if (workout.isDefault)
+                return StatusCode(StatusCodes.Status403Forbidden, "Default workouts cannot be modified.");
+
             workout.Name = request.Name;
             workout.Description = request.Description;
 
@@ -130,6 +133,9 @@ namespace FirstApp.Api.Controllers
 
             if (workout == null)
                 return NotFound();
+
+            if (workout.isDefault)
+                return StatusCode(StatusCodes.Status403Forbidden, "Default workouts cannot be modified.");
 
             // 🔧 VALIDATION
             var validation = ValidateWorkoutExercises(
@@ -177,12 +183,16 @@ namespace FirstApp.Api.Controllers
     int workoutExerciseId)
         {
             var workoutExercise = await _context.WorkoutExercises
+                .Include(we => we.Workout)
                 .FirstOrDefaultAsync(we =>
                     we.Id == workoutExerciseId &&
                     we.WorkoutId == workoutId);
 
             if (workoutExercise == null)
                 return NotFound();
+
+            if (workoutExercise.Workout.isDefault)
+                return StatusCode(StatusCodes.Status403Forbidden, "Default workouts cannot be modified.");
 
             _context.WorkoutExercises.Remove(workoutExercise);
             await _context.SaveChangesAsync();
@@ -198,6 +208,9 @@ namespace FirstApp.Api.Controllers
             var workout = await _context.Workouts.FindAsync(id);
             if (workout == null)
                 return NotFound();
+
+            if (workout.isDefault)
+                return StatusCode(StatusCodes.Status403Forbidden, "Default workouts cannot be deleted.");
 
             _context.Workouts.Remove(workout);
             await _context.SaveChangesAsync();
@@ -226,6 +239,7 @@ namespace FirstApp.Api.Controllers
                 Id = workout.Id,
                 Name = workout.Name,
                 Description = workout.Description,
+                isDefault = workout.isDefault,
                 WorkoutExercises = workout.WorkoutExercises
                     .OrderBy(we => we.OrderIndex)
                     .Select(we => new WorkoutExerciseResponse

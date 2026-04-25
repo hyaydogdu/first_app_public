@@ -6,4 +6,3 @@ namespace FirstApp.Api.Dtos
         public string? Description { get; set; }
     }
 }
-

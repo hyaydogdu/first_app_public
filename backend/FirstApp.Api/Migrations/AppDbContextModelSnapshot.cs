@@ -83,6 +83,9 @@ namespace FirstApp.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("isDefault")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.ToTable("WeeklyPlans");
@@ -103,6 +106,9 @@ namespace FirstApp.Api.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("isDefault")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

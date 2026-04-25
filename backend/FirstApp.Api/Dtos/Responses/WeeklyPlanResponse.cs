@@ -5,7 +5,11 @@ public class WeeklyPlanResponse
     public int Id { get; set; }
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
+
+    public bool isDefault { get; set; }
+
     public DateTime CreatedAt { get; set; }
+
     public WeekResponse Week { get; set; } = new();
 }
 
@@ -24,4 +28,5 @@ public class WorkoutSummaryResponse
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
+    public bool isDefault { get; set; }
 }

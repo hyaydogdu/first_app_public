@@ -6,6 +6,8 @@ public class WeeklyPlan
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
 
+    public bool isDefault { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public Week Week { get; set; } = null!;

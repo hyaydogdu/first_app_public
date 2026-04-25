@@ -5,12 +5,14 @@ class WorkoutUiModel {
   final int id;
   final String name;
   final String? description;
+  final bool isDefault;
   final List<WorkoutExerciseUiModel> workoutExercises;
 
   WorkoutUiModel({
     required this.id,
     required this.name,
     this.description,
+    this.isDefault = false,
     required this.workoutExercises,
   });
   // API'den gelen JSON verisini WorkoutUiModel nesnesine dönüştürmek için factory constructor
@@ -19,6 +21,7 @@ class WorkoutUiModel {
       id: json['id'],
       name: json['name'],
       description: json['description'],
+      isDefault: json['isDefault'] == true,
       workoutExercises: (json['workoutExercises'] as List<dynamic>? ?? [])
           .map((e) => WorkoutExerciseUiModel.fromJson(e))
           .toList(),
@@ -45,6 +48,7 @@ class WorkoutUiModel {
       id: id,
       name: name ?? this.name,
       description: description ?? this.description,
+      isDefault: isDefault,
       workoutExercises: workoutExercises ?? this.workoutExercises,
     );
   }

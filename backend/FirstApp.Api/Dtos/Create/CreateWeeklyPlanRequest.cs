@@ -1,4 +1,4 @@
-namespace FirstApp.Api.Contracts;
+namespace FirstApp.Api.Dtos;
 
 public class CreateWeeklyPlanRequest
 {

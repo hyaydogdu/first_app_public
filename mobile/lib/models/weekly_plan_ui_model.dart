@@ -5,6 +5,7 @@ class WeeklyPlanUiModel {
   final int id;
   final String name;
   final String? description;
+  final bool isDefault;
   final DateTime createdAt;
   final WeekUiModel? week;
 
@@ -12,6 +13,7 @@ class WeeklyPlanUiModel {
     required this.id,
     required this.name,
     this.description,
+    this.isDefault = false,
     required this.createdAt,
     this.week,
   });
@@ -27,6 +29,7 @@ class WeeklyPlanUiModel {
       id: json['id'],
       name: json['name'] ?? '',
       description: json['description'],
+      isDefault: json['isDefault'] == true,
       createdAt: DateTime.parse(json['createdAt']),
       week: week,
     );

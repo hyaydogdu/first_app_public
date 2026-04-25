@@ -57,14 +57,52 @@ public class WeeklyPlansController : ControllerBase
 
     // CREATE
     [HttpPost]
-    public async Task<IActionResult> Create(WeeklyPlan plan)
+    public async Task<IActionResult> Create([FromBody] CreateWeeklyPlanRequest request)
     {
-        plan.CreatedAt = DateTime.UtcNow;
+        var plan = new WeeklyPlan
+        {
+            Name = request.Name,
+            Description = request.Description,
+            CreatedAt = DateTime.UtcNow,
+            Week = new Week(),
+        };
 
         _context.WeeklyPlans.Add(plan);
         await _context.SaveChangesAsync();
 
-        return Ok(plan);
+        return Ok(ToResponse(plan));
+    }
+
+    // UPDATE
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(
+        int id,
+        [FromBody] UpdateWeeklyPlanRequest request)
+    {
+        var plan = await _context.WeeklyPlans
+            .Include(x => x.Week)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (plan == null)
+            return NotFound();
+
+        if (plan.isDefault)
+            return StatusCode(StatusCodes.Status403Forbidden, "Default weekly plans cannot be modified.");
+
+        plan.Name = request.Name;
+        plan.Description = request.Description;
+
+        plan.Week.MondayWorkoutId = request.MondayWorkoutId;
+        plan.Week.TuesdayWorkoutId = request.TuesdayWorkoutId;
+        plan.Week.WednesdayWorkoutId = request.WednesdayWorkoutId;
+        plan.Week.ThursdayWorkoutId = request.ThursdayWorkoutId;
+        plan.Week.FridayWorkoutId = request.FridayWorkoutId;
+        plan.Week.SaturdayWorkoutId = request.SaturdayWorkoutId;
+        plan.Week.SundayWorkoutId = request.SundayWorkoutId;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 
     // UPDATE DAY WORKOUT
@@ -79,6 +117,9 @@ public class WeeklyPlansController : ControllerBase
 
         if (plan == null)
             return NotFound();
+
+        if (plan.isDefault)
+            return StatusCode(StatusCodes.Status403Forbidden, "Default weekly plans cannot be modified.");
 
         switch (request.Day.ToLowerInvariant())
         {
@@ -128,6 +169,9 @@ public class WeeklyPlansController : ControllerBase
         if (plan == null)
             return NotFound();
 
+        if (plan.isDefault)
+            return StatusCode(StatusCodes.Status403Forbidden, "Default weekly plans cannot be deleted.");
+
         _context.WeeklyPlans.Remove(plan);
         await _context.SaveChangesAsync();
 
@@ -141,6 +185,7 @@ public class WeeklyPlansController : ControllerBase
             Id = plan.Id,
             Name = plan.Name,
             Description = plan.Description,
+            isDefault = plan.isDefault,
             CreatedAt = plan.CreatedAt,
             Week = new WeekResponse
             {
@@ -164,6 +209,7 @@ public class WeeklyPlansController : ControllerBase
         {
             Id = workout.Id,
             Name = workout.Name,
+            isDefault = workout.isDefault,
         };
     }
 }
