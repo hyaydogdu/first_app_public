@@ -203,10 +203,10 @@ class StatCard extends StatelessWidget {
   }
 }
 
-class WeeklyPlanCard extends StatelessWidget {
+class PlanCard extends StatelessWidget {
   final WeeklyPlanUiModel weeklyPlan;
   final VoidCallback onCardClosed;
-  const WeeklyPlanCard({
+  const PlanCard({
     super.key,
     required this.weeklyPlan,
     required this.onCardClosed,
@@ -214,19 +214,39 @@ class WeeklyPlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final workoutDays = [
+      weeklyPlan.week?.mondayWorkout,
+      weeklyPlan.week?.tuesdayWorkout,
+      weeklyPlan.week?.wednesdayWorkout,
+      weeklyPlan.week?.thursdayWorkout,
+      weeklyPlan.week?.fridayWorkout,
+      weeklyPlan.week?.saturdayWorkout,
+      weeklyPlan.week?.sundayWorkout,
+    ].where((workout) => workout != null).length;
+
     return Box(
-      boxColor: color_1,
       softCorners: true,
-      edgeSpaceAllBig: true,
-      elevation: 6,
+      elevation: 4,
+      boxColor: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Weekly Plan", style: textStyleM, textAlign: TextAlign.start),
+            Text(
+              weeklyPlan.name.toUpperCase(),
+              style: textStyleM,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             const SizedBox(height: 6),
-            maxWidth(
+            Text(
+              "$workoutDays workout days",
+              style: textStyleS,
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
               child: MyTextButton(
                 text: "View Plan",
                 onPressed: () async {

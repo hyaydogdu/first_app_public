@@ -79,6 +79,9 @@ namespace FirstApp.Api.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DefaultKey")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -87,6 +90,9 @@ namespace FirstApp.Api.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DefaultKey")
+                        .IsUnique();
 
                     b.ToTable("WeeklyPlans");
                 });
@@ -103,6 +109,9 @@ namespace FirstApp.Api.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("DefaultKey")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -111,6 +120,9 @@ namespace FirstApp.Api.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DefaultKey")
+                        .IsUnique();
 
                     b.ToTable("Workouts");
                 });

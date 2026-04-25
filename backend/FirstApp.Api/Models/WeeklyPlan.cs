@@ -7,6 +7,7 @@ public class WeeklyPlan
     public string? Description { get; set; }
 
     public bool isDefault { get; set; }
+    public string? DefaultKey { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

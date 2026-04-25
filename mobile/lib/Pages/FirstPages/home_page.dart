@@ -127,10 +127,9 @@ class _HomePageState extends State<HomePage> {
               workouts: workouts,
               onCardClosed: _loadWorkouts,
             ),
-          ],
-          if (weeklyPlans.isNotEmpty) ...[
-            WeeklyPlanCard(
-              weeklyPlan: weeklyPlans.first,
+            planSlider(
+              title: "Weekly Plans",
+              plans: weeklyPlans,
               onCardClosed: _loadWeeklyPlans,
             ),
           ],

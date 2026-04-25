@@ -21,6 +21,14 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<WeeklyPlan>()
+            .HasIndex(wp => wp.DefaultKey)
+            .IsUnique();
+
+        modelBuilder.Entity<Workout>()
+            .HasIndex(w => w.DefaultKey)
+            .IsUnique();
+
+        modelBuilder.Entity<WeeklyPlan>()
             .OwnsOne(wp => wp.Week, week =>
             {
                 week.WithOwner();

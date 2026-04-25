@@ -1,0 +1,12 @@
+[
+  {
+    "key": "beginner-week",
+    "name": "Beginner Weekly Plan",
+    "description": "Three-day starter plan",
+    "days": {
+      "monday": "beginner-push",
+      "wednesday": "beginner-pull",
+      "friday": "beginner-push"
+    }
+  }
+]

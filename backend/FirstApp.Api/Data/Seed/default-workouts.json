@@ -1,0 +1,58 @@
+[
+  {
+    "key": "beginner-push",
+    "name": "Beginner Push Day",
+    "description": "Chest, shoulders, triceps starter workout",
+    "exercises": [
+      {
+        "exerciseId": 1,
+        "orderIndex": 0,
+        "sets": [
+          {
+            "setIndex": 0,
+            "weightKg": 0,
+            "reps": 10,
+            "restSeconds": 60
+          },
+          {
+            "setIndex": 1,
+            "weightKg": 0,
+            "reps": 10,
+            "restSeconds": 60
+          }
+        ]
+      },
+      {
+        "exerciseId": 2,
+        "orderIndex": 1,
+        "sets": [
+          {
+            "setIndex": 0,
+            "weightKg": 0,
+            "reps": 12,
+            "restSeconds": 60
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "key": "beginner-pull",
+    "name": "Beginner Pull Day",
+    "description": "Back starter workout",
+    "exercises": [
+      {
+        "exerciseId": 3,
+        "orderIndex": 0,
+        "sets": [
+          {
+            "setIndex": 0,
+            "weightKg": 0,
+            "reps": 8,
+            "restSeconds": 90
+          }
+        ]
+      }
+    ]
+  }
+]
