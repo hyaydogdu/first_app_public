@@ -148,7 +148,7 @@ class WeekDayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    WorkoutUiModel? theWorkout = findDayWorkout(day);
+    WorkoutUiModel? theWorkout = _findDayWorkout(weeklyPlan, day);
     final Color cardColor = theWorkout != null
         ? color_2.withValues(alpha: 0.5)
         : color_2;
@@ -176,14 +176,14 @@ class WeekDayCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  onePiece(
+                  _onePiece(
                     alignment: Alignment.centerLeft,
                     boxRight: 1,
                     height: defaultHeight * 3,
                     child: Text(day, style: textStyleL),
                   ),
 
-                  onePiece(
+                  _onePiece(
                     alignment: Alignment.topLeft,
                     boxRight: 1,
                     height: defaultHeight * 2,
@@ -202,11 +202,11 @@ class WeekDayCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  onePiece(
+                  _onePiece(
                     alignment: Alignment.centerRight,
                     boxLeft: 1,
                     height: defaultHeight * 5,
-                    child: findDayWorkout(day) != null
+                    child: _findDayWorkout(weeklyPlan, day) != null
                         ? Icon(Icons.arrow_right, size: 48)
                         : Icon(Icons.hotel, size: 36),
                   ),
@@ -218,51 +218,143 @@ class WeekDayCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget onePiece({
-    required Alignment alignment,
-    int? boxRight,
-    int? boxLeft,
-    required Widget child,
-    required double height,
-  }) {
-    return ConstrainedBox(
-      constraints: BoxConstraints.tightFor(height: height),
-      child: Row(
-        children: [
-          if (boxRight != null)
-            for (int i = 0; i < boxRight; i++) SizedBox(width: defaultHeight),
-          Expanded(
-            child: Box(
-              boxColor: Colors.transparent,
-              child: Align(alignment: alignment, child: child),
+class WeekDayCardEdit extends StatefulWidget {
+  final String day;
+  final WeeklyPlanUiModel weeklyPlan;
+  const WeekDayCardEdit({
+    super.key,
+    required this.day,
+    required this.weeklyPlan,
+  });
+
+  @override
+  State<WeekDayCardEdit> createState() => _WeekDayCardEditState();
+}
+
+class _WeekDayCardEditState extends State<WeekDayCardEdit> {
+  @override
+  Widget build(BuildContext context) {
+    WorkoutUiModel? theWorkout = _findDayWorkout(widget.weeklyPlan, widget.day);
+    final Color cardColor = theWorkout != null
+        ? color_2.withValues(alpha: 0.5)
+        : color_2;
+    return InkWell(
+      onTap: theWorkout == null
+          ? null
+          : () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => WorkoutViewPage(workout: theWorkout),
+                ),
+              );
+            },
+      child: BorderBox(
+        boxColor: cardColor,
+        strokeColor: theWorkout != null ? null : cardColor,
+        softCorners: true,
+        edgeSpaceAllSmall: true,
+        edgeSpaceHorizontal: true,
+        elevation: 4,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _onePiece(
+                    alignment: Alignment.centerLeft,
+                    boxRight: 1,
+                    height: defaultHeight * 3,
+                    child: Text(widget.day, style: textStyleL),
+                  ),
+
+                  _onePiece(
+                    alignment: Alignment.topLeft,
+                    boxRight: 1,
+                    height: defaultHeight * 2,
+                    child: Text(
+                      textCase(
+                        theWorkout?.name ?? "REST DAY",
+                        TextCaseMode.title,
+                      ),
+                      style: textStyleS,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (boxLeft != null)
-            for (int i = 0; i < boxLeft; i++) SizedBox(width: defaultHeight),
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _onePiece(
+                    alignment: Alignment.centerRight,
+                    boxLeft: 1,
+                    height: defaultHeight * 5,
+                    child: InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => SelectWorkoutPage()),
+                      ),
+                      child: Icon(Icons.refresh, size: 36),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  WorkoutUiModel? findDayWorkout(String day) {
-    switch (day) {
-      case "Monday":
-        return weeklyPlan.week!.mondayWorkout;
-      case "Tuesday":
-        return weeklyPlan.week!.tuesdayWorkout;
-      case "Wednesday":
-        return weeklyPlan.week!.wednesdayWorkout;
-      case "Thursday":
-        return weeklyPlan.week!.thursdayWorkout;
-      case "Friday":
-        return weeklyPlan.week!.fridayWorkout;
-      case "Saturday":
-        return weeklyPlan.week!.saturdayWorkout;
-      case "Sunday":
-        return weeklyPlan.week!.sundayWorkout;
-      default:
-        return null;
-    }
+Widget _onePiece({
+  required Alignment alignment,
+  int? boxRight,
+  int? boxLeft,
+  required Widget child,
+  required double height,
+}) {
+  return ConstrainedBox(
+    constraints: BoxConstraints.tightFor(height: height),
+    child: Row(
+      children: [
+        if (boxRight != null)
+          for (int i = 0; i < boxRight; i++) SizedBox(width: defaultHeight),
+        Expanded(
+          child: Box(
+            boxColor: Colors.transparent,
+            child: Align(alignment: alignment, child: child),
+          ),
+        ),
+        if (boxLeft != null)
+          for (int i = 0; i < boxLeft; i++) SizedBox(width: defaultHeight),
+      ],
+    ),
+  );
+}
+
+WorkoutUiModel? _findDayWorkout(WeeklyPlanUiModel weeklyPlan, String day) {
+  switch (day) {
+    case "Monday":
+      return weeklyPlan.week!.mondayWorkout;
+    case "Tuesday":
+      return weeklyPlan.week!.tuesdayWorkout;
+    case "Wednesday":
+      return weeklyPlan.week!.wednesdayWorkout;
+    case "Thursday":
+      return weeklyPlan.week!.thursdayWorkout;
+    case "Friday":
+      return weeklyPlan.week!.fridayWorkout;
+    case "Saturday":
+      return weeklyPlan.week!.saturdayWorkout;
+    case "Sunday":
+      return weeklyPlan.week!.sundayWorkout;
+    default:
+      return null;
   }
 }
