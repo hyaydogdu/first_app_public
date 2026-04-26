@@ -118,17 +118,26 @@ class _HomePageState extends State<HomePage> {
             ),
           ] else ...[
             workoutSlider(
-              title: "Ready Workouts",
+              isDefault: true,
+              title: "Default Workouts",
               workouts: workouts,
               onCardClosed: _loadWorkouts,
             ),
             workoutSlider(
-              title: "Ready Workouts",
+              isDefault: false,
+              title: "Your Workouts",
               workouts: workouts,
               onCardClosed: _loadWorkouts,
             ),
             planSlider(
-              title: "Weekly Plans",
+              isDefault: true,
+              title: "Default Weekly Plans",
+              plans: weeklyPlans,
+              onCardClosed: _loadWeeklyPlans,
+            ),
+            planSlider(
+              isDefault: false,
+              title: "Your Weekly Plans",
               plans: weeklyPlans,
               onCardClosed: _loadWeeklyPlans,
             ),

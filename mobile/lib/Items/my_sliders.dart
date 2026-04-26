@@ -4,10 +4,14 @@ import 'package:first_app/Items/Barrel/item_barrel.dart';
 import 'package:first_app/models/workout_ui_model.dart';
 
 Widget workoutSlider({
+  required bool isDefault,
   required String title,
   required List<WorkoutUiModel> workouts,
   required VoidCallback onCardClosed,
 }) {
+  final defaultWorkouts = workouts.where((w) => w.isDefault == true).toList();
+  final userWorkouts = workouts.where((w) => w.isDefault == false).toList();
+
   return Box(
     boxColor: color_1,
     edgeSpaceAllBig: true,
@@ -33,13 +37,15 @@ Widget workoutSlider({
             child: ListView.separated(
               padding: const EdgeInsets.all(defaultHeight),
               scrollDirection: Axis.horizontal,
-              itemCount: workouts.length,
+              itemCount: isDefault
+                  ? defaultWorkouts.length
+                  : userWorkouts.length,
               separatorBuilder: (_, _) => const SizedBox(width: defaultHeight),
               itemBuilder: (context, i) {
                 return SizedBox(
                   width: 220, // kart genişliği sabit -> slider hissi
                   child: WorkoutCard(
-                    workout: workouts[i],
+                    workout: isDefault ? defaultWorkouts[i] : userWorkouts[i],
                     onCardClosed: onCardClosed,
                   ),
                 );
@@ -55,10 +61,14 @@ Widget workoutSlider({
 }
 
 Widget planSlider({
+  required bool isDefault,
   required String title,
   required List<WeeklyPlanUiModel> plans,
   required VoidCallback onCardClosed,
 }) {
+  final defaultPlans = plans.where((p) => p.isDefault == true).toList();
+  final userPlans = plans.where((p) => p.isDefault == false).toList();
+
   return Box(
     boxColor: color_1,
     edgeSpaceAllBig: true,
@@ -84,13 +94,13 @@ Widget planSlider({
             child: ListView.separated(
               padding: const EdgeInsets.all(defaultHeight),
               scrollDirection: Axis.horizontal,
-              itemCount: plans.length,
+              itemCount: isDefault ? defaultPlans.length : userPlans.length,
               separatorBuilder: (_, _) => const SizedBox(width: defaultHeight),
               itemBuilder: (context, i) {
                 return SizedBox(
                   width: 220, // kart genişliği sabit -> slider hissi
                   child: PlanCard(
-                    weeklyPlan: plans[i],
+                    weeklyPlan: isDefault ? defaultPlans[i] : userPlans[i],
                     onCardClosed: onCardClosed,
                   ),
                 );
