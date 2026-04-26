@@ -154,14 +154,14 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
         ],
       ),
       body: isEditing
-          ? EditMode(
+          ? _EditMode(
               nameController: nameController,
               descriptionController: descriptionController,
               workout: currentWorkout,
               expandedMap: expandedMap,
               refreshPage: refreshPage,
             )
-          : ViewMode(
+          : _ViewMode(
               workout: currentWorkout,
               expandedMap: expandedMap,
               refreshPage: refreshPage,
@@ -204,13 +204,12 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
   }
 }
 
-class ViewMode extends StatelessWidget {
+class _ViewMode extends StatelessWidget {
   final WorkoutUiModel workout;
   final Map<int, bool> expandedMap;
   final VoidCallback refreshPage;
 
-  const ViewMode({
-    super.key,
+  const _ViewMode({
     required this.workout,
     required this.expandedMap,
     required this.refreshPage,
@@ -270,15 +269,14 @@ class ViewMode extends StatelessWidget {
   }
 }
 
-class EditMode extends StatefulWidget {
+class _EditMode extends StatefulWidget {
   final WorkoutUiModel workout;
   final TextEditingController nameController;
   final TextEditingController descriptionController;
   final Map<int, bool> expandedMap;
   final VoidCallback refreshPage;
 
-  const EditMode({
-    super.key,
+  const _EditMode({
     required this.workout,
     required this.nameController,
     required this.descriptionController,
@@ -287,10 +285,10 @@ class EditMode extends StatefulWidget {
   });
 
   @override
-  State<EditMode> createState() => _EditModeState();
+  State<_EditMode> createState() => _EditModeState();
 }
 
-class _EditModeState extends State<EditMode> {
+class _EditModeState extends State<_EditMode> {
   Future<void> addExercise(BuildContext context) async {
     final selected = await Navigator.push<ExerciseUiModel>(
       context,
