@@ -17,15 +17,13 @@ class MyTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
+    return TextButton(
+      style: TextButton.styleFrom(
         backgroundColor: bgColor ?? accentColor,
-        foregroundColor: textColor ?? Colors.black,
-        textStyle: textStyleS,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-
       onPressed: onPressed,
-      child: Text(text),
+      child: Text(text, style: textStyleS),
     );
   }
 }

@@ -156,18 +156,14 @@ class _WeekDayCardEditState extends State<WeekDayCardEdit> {
   @override
   Widget build(BuildContext context) {
     WorkoutUiModel? theWorkout = _findDayWorkout(widget.weeklyPlan, widget.day);
-    final Color cardColor = theWorkout != null
-        ? color_2.withValues(alpha: 0.5)
-        : color_2;
+    final Color cardColor = color_2;
     return InkWell(
       onTap: theWorkout == null
           ? null
           : () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => WorkoutViewPage(workout: theWorkout),
-                ),
+                MaterialPageRoute(builder: (_) => SelectWorkoutPage()),
               );
             },
       child: BorderBox(
@@ -176,29 +172,30 @@ class _WeekDayCardEditState extends State<WeekDayCardEdit> {
         softCorners: true,
         edgeSpaceAllSmall: true,
         edgeSpaceHorizontal: true,
-        elevation: 4,
+        elevation: theWorkout != null ? 4 : 0,
         child: Row(
           children: [
             Expanded(
+              flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _onePiece(
                     alignment: Alignment.centerLeft,
                     boxRight: 1,
-                    height: defaultHeight / 2,
+                    height: defaultHeight,
                     child: Text(
-                      textCase(widget.day, TextCaseMode.title),
-                      style: textStyleM,
+                      textCase("", TextCaseMode.title),
+                      style: textStyleL,
                     ),
                   ),
                   _onePiece(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.topLeft,
                     boxRight: 1,
-                    height: defaultHeight * 3,
+                    height: defaultHeight * 2,
                     child: Text(
                       textCase(widget.day, TextCaseMode.title),
-                      style: textStyleL,
+                      style: textStyleM,
                     ),
                   ),
 
@@ -208,29 +205,46 @@ class _WeekDayCardEditState extends State<WeekDayCardEdit> {
                     height: defaultHeight * 2,
                     child: Text(
                       textCase(
-                        theWorkout?.name ?? "REST DAY",
+                        theWorkout?.name ?? "Rest Day",
                         TextCaseMode.title,
                       ),
-                      style: textStyleS,
+                      style: textStyleM,
+                    ),
+                  ),
+                  _onePiece(
+                    alignment: Alignment.topLeft,
+                    boxRight: 1,
+                    height: defaultHeight * 3,
+                    child: Text(
+                      textCase(
+                        theWorkout?.description ?? "Enjoy your rest day!",
+                        TextCaseMode.sentence,
+                      ),
+                      style: textStyleSGrey,
                     ),
                   ),
                 ],
               ),
             ),
             Expanded(
+              flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _onePiece(
                     alignment: Alignment.centerRight,
                     boxLeft: 1,
-                    height: defaultHeight * 5,
-                    child: InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => SelectWorkoutPage()),
+                    height: defaultHeight * 7,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: accentColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          // side: BorderSide(color: Colors.black),
+                        ),
                       ),
-                      child: Icon(Icons.refresh, size: 36),
+                      onPressed: () async {},
+                      child: Text("View Workout", style: textStyleS),
                     ),
                   ),
                 ],
