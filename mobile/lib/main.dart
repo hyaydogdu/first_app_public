@@ -29,7 +29,6 @@ class _MainPageState extends State<MainPage> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: color_1,
-
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             color: color_1,

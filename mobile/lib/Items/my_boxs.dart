@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class BorderBox extends StatelessWidget {
   final Color boxColor;
   final Color? strokeColor;
+  final Color? shadowColor;
   final Widget child;
   final bool? edgeSpaceAllBig;
   final bool? edgeSpaceAllSmall;
@@ -16,6 +17,7 @@ class BorderBox extends StatelessWidget {
     super.key,
     required this.boxColor,
     this.strokeColor,
+    this.shadowColor,
     required this.child,
     this.edgeSpaceAllBig,
     this.edgeSpaceHorizontal,
@@ -46,6 +48,7 @@ class BorderBox extends StatelessWidget {
 
       child: Material(
         color: boxColor,
+        shadowColor: shadowColor ?? Colors.black,
         elevation: elevation ?? 0,
         shape: RoundedRectangleBorder(
           borderRadius: radius,

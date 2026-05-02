@@ -235,7 +235,7 @@ class EditWorkoutExerciseCard extends StatelessWidget {
               width: double.infinity,
               child: MyTextButton(
                 text: "Add Set",
-                bgColor: color_2,
+                color: color_2,
                 onPressed: onAddSet,
               ),
             ),

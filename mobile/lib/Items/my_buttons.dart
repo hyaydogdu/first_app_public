@@ -3,27 +3,34 @@ import 'package:first_app/Items/Barrel/item_barrel.dart';
 
 class MyTextButton extends StatelessWidget {
   final String text;
-  final Color? bgColor;
+  final Color? color;
+  final Color? strokeColor;
   final Color? textColor;
+  final double? elevation;
   final VoidCallback onPressed;
 
   const MyTextButton({
     super.key,
     required this.text,
     required this.onPressed,
-    this.bgColor,
+    this.color,
+    this.strokeColor,
     this.textColor,
+    this.elevation,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       style: TextButton.styleFrom(
-        backgroundColor: bgColor ?? accentColor,
+        backgroundColor: color ?? accentColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        side: BorderSide(color: strokeColor ?? Colors.transparent),
+        shadowColor: Colors.black,
+        elevation: elevation ?? 0,
       ),
       onPressed: onPressed,
-      child: Text(text, style: textStyleS),
+      child: Text(text, style: textStyleS, textAlign: TextAlign.center),
     );
   }
 }

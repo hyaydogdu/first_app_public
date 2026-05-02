@@ -4,6 +4,7 @@ import 'package:first_app/Items/Barrel/item_barrel.dart';
 enum TextCaseMode { sentence, title, upper, lower }
 
 class StatBox extends StatelessWidget {
+  // workout_done_page'da kullanılıyor
   final String text;
   final String stat;
   final TextStyle? textStyle;
@@ -32,36 +33,38 @@ class StatBox extends StatelessWidget {
 }
 
 class TextBox extends StatelessWidget {
-  final String? text;
+  final String text;
+  final Color color;
   final TextStyle? textStyle;
-  final Widget? child;
   final TextCaseMode? caseMode;
-  final Color? color;
+  final double? verticalPadding;
+  final double? horizontalPadding;
   const TextBox({
     super.key,
     required this.text,
+    required this.color,
     this.textStyle,
-    this.child,
     this.caseMode,
-    this.color,
+    this.verticalPadding,
+    this.horizontalPadding,
   });
 
   @override
   Widget build(BuildContext context) {
     return Box(
-      boxColor: color ?? color_2,
+      boxColor: color,
       edgeSpaceHorizontal: true,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (text != null && text!.isNotEmpty)
-            Text(
-              caseMode != null ? textCase(text!, caseMode!) : text!,
-              style: textStyle,
-              textAlign: TextAlign.center,
-            ),
-          if (child != null) child!,
-        ],
+      softCorners: true,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding ?? 20,
+          vertical: verticalPadding ?? 4,
+        ),
+        child: Text(
+          caseMode != null ? textCase(text, caseMode!) : text,
+          style: textStyle,
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

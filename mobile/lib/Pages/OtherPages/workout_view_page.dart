@@ -187,7 +187,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
           ),
           child: MyTextButton(
             text: isLoadingWorkout ? "Loading..." : "Go to Workout",
-            bgColor: isLoadingWorkout ? Colors.grey.shade400 : null,
+            color: isLoadingWorkout ? Colors.grey.shade400 : null,
             onPressed: () async {
               if (isLoadingWorkout) return;
               await Navigator.push(
@@ -499,7 +499,7 @@ class _EditModeState extends State<_EditMode> {
                   color: Colors.transparent,
                   child: MyTextButton(
                     text: "Add Exercise",
-                    bgColor: color_2,
+                    color: color_2,
                     onPressed: () => addExercise(context),
                   ),
                 ),

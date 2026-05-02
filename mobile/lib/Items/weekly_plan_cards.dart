@@ -26,11 +26,11 @@ class WeekDayCard extends StatelessWidget {
             },
       child: BorderBox(
         boxColor: cardColor,
-        strokeColor: theWorkout != null ? null : cardColor,
+        strokeColor: cardColor,
         softCorners: true,
         edgeSpaceAllSmall: true,
         edgeSpaceHorizontal: true,
-        elevation: theWorkout != null ? 4 : 0,
+        elevation: theWorkout != null ? 8 : 0,
         child: Row(
           children: [
             Expanded(
@@ -93,40 +93,24 @@ class WeekDayCard extends StatelessWidget {
                     alignment: Alignment.center,
                     boxLeft: 0,
                     height: defaultHeight * 3.5,
-                    child: Box(
-                      boxColor: color_1,
-                      softCorners: true,
-                      child: SizedBox(
-                        height: defaultHeight * 1.5,
-                        width: defaultHeight * 5,
-                        child: Text(
-                          theWorkout != null
-                              ? "${_findTotalSets(theWorkout)} sets"
-                              : "Rest",
-                          style: textStyleS,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                    child: TextBox(
+                      text: theWorkout != null
+                          ? "${_findTotalSets(theWorkout)} sets"
+                          : "Rest",
+                      textStyle: textStyleS,
+                      color: accentColor,
                     ),
                   ),
                   _onePiece(
                     alignment: Alignment.center,
                     boxLeft: 0,
                     height: defaultHeight * 3.5,
-                    child: Box(
-                      boxColor: color_1,
-                      softCorners: true,
-                      child: SizedBox(
-                        height: defaultHeight * 1.5,
-                        width: defaultHeight * 5,
-                        child: Text(
-                          theWorkout != null
-                              ? "${theWorkout.workoutExercises.length} exercises"
-                              : "Rest",
-                          style: textStyleS,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                    child: TextBox(
+                      text: theWorkout != null
+                          ? "${theWorkout.workoutExercises.length} exercises"
+                          : "Rest",
+                      textStyle: textStyleS,
+                      color: accentColor,
                     ),
                   ),
                 ],
@@ -163,16 +147,18 @@ class _WeekDayCardEditState extends State<WeekDayCardEdit> {
           : () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => SelectWorkoutPage()),
+                MaterialPageRoute(
+                  builder: (_) => WorkoutViewPage(workout: theWorkout),
+                ),
               );
             },
       child: BorderBox(
         boxColor: cardColor,
-        strokeColor: theWorkout != null ? null : cardColor,
+        strokeColor: cardColor,
         softCorners: true,
         edgeSpaceAllSmall: true,
         edgeSpaceHorizontal: true,
-        elevation: theWorkout != null ? 4 : 0,
+        elevation: theWorkout != null ? 8 : 0,
         child: Row(
           children: [
             Expanded(
@@ -235,16 +221,20 @@ class _WeekDayCardEditState extends State<WeekDayCardEdit> {
                     alignment: Alignment.centerRight,
                     boxLeft: 1,
                     height: defaultHeight * 7,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: accentColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          // side: BorderSide(color: Colors.black),
-                        ),
-                      ),
-                      onPressed: () async {},
-                      child: Text("View Workout", style: textStyleS),
+                    child: MyTextButton(
+                      color: accentColor,
+                      strokeColor: Colors.black,
+                      text: theWorkout == null
+                          ? "Add     Workout"
+                          : "Change Workout",
+                      onPressed: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SelectWorkoutPage(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],

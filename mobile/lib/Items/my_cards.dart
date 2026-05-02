@@ -88,9 +88,13 @@ class StatCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: defaultHeight / 2),
-          TextBox(text: text, textStyle: textStyleM, color: Colors.transparent),
-          SizedBox(height: defaultHeight / 2),
+          TextBox(
+            text: text,
+            textStyle: textStyleM,
+            color: Colors.transparent,
+            verticalPadding: 12,
+            horizontalPadding: 0,
+          ),
         ],
       ),
     );
