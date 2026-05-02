@@ -10,3 +10,4 @@ export 'package:first_app/Items/video_player.dart';
 export 'package:first_app/Items/progress_indicators.dart';
 export 'package:first_app/Items/tools.dart';
 export 'package:first_app/Items/slider_cards.dart';
+export 'package:first_app/Items/weekly_plan_cards.dart';

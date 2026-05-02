@@ -21,14 +21,7 @@ public class WeeklyPlansController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var plans = await _context.WeeklyPlans
-            .Include(x => x.Week.Monday)
-            .Include(x => x.Week.Tuesday)
-            .Include(x => x.Week.Wednesday)
-            .Include(x => x.Week.Thursday)
-            .Include(x => x.Week.Friday)
-            .Include(x => x.Week.Saturday)
-            .Include(x => x.Week.Sunday)
+        var plans = await IncludeWeekWorkoutDetails(_context.WeeklyPlans)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
 
@@ -39,14 +32,7 @@ public class WeeklyPlansController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var plan = await _context.WeeklyPlans
-            .Include(x => x.Week.Monday)
-            .Include(x => x.Week.Tuesday)
-            .Include(x => x.Week.Wednesday)
-            .Include(x => x.Week.Thursday)
-            .Include(x => x.Week.Friday)
-            .Include(x => x.Week.Saturday)
-            .Include(x => x.Week.Sunday)
+        var plan = await IncludeWeekWorkoutDetails(_context.WeeklyPlans)
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (plan == null)
@@ -209,8 +195,48 @@ public class WeeklyPlansController : ControllerBase
         {
             Id = workout.Id,
             Name = workout.Name,
+            Description = workout.Description,
             isDefault = workout.isDefault,
+            WorkoutExercises = workout.WorkoutExercises
+                .OrderBy(we => we.OrderIndex)
+                .Select(we => new WorkoutExerciseResponse
+                {
+                    Id = we.Id,
+                    ExerciseId = we.ExerciseId,
+                    ExerciseName = we.Exercise.Name,
+                    ExerciseVideoUrl = we.Exercise.VideoUrl,
+                    ExerciseImageUrl = we.Exercise.ImageUrl,
+                    OrderIndex = we.OrderIndex,
+                    Sets = we.Sets
+                        .OrderBy(s => s.SetIndex)
+                        .Select(s => new WorkoutSetResponse
+                        {
+                            SetIndex = s.SetIndex,
+                            WeightKg = s.WeightKg,
+                            Reps = s.Reps,
+                            RestSeconds = s.RestSeconds
+                        }).ToList()
+                }).ToList(),
         };
+    }
+
+    private static IQueryable<WeeklyPlan> IncludeWeekWorkoutDetails(IQueryable<WeeklyPlan> query)
+    {
+        return query
+            .Include("Week.Monday.WorkoutExercises.Exercise")
+            .Include("Week.Monday.WorkoutExercises.Sets")
+            .Include("Week.Tuesday.WorkoutExercises.Exercise")
+            .Include("Week.Tuesday.WorkoutExercises.Sets")
+            .Include("Week.Wednesday.WorkoutExercises.Exercise")
+            .Include("Week.Wednesday.WorkoutExercises.Sets")
+            .Include("Week.Thursday.WorkoutExercises.Exercise")
+            .Include("Week.Thursday.WorkoutExercises.Sets")
+            .Include("Week.Friday.WorkoutExercises.Exercise")
+            .Include("Week.Friday.WorkoutExercises.Sets")
+            .Include("Week.Saturday.WorkoutExercises.Exercise")
+            .Include("Week.Saturday.WorkoutExercises.Sets")
+            .Include("Week.Sunday.WorkoutExercises.Exercise")
+            .Include("Week.Sunday.WorkoutExercises.Sets");
     }
 }
 

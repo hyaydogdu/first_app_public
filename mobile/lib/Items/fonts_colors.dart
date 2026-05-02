@@ -12,6 +12,12 @@ const TextStyle textStyleS = TextStyle(
   color: Colors.black, // buraya istediğin global renk
 );
 
+const TextStyle textStyleSGrey = TextStyle(
+  fontFamily: "Urbanist",
+  fontSize: 18,
+  color: Colors.black54, // buraya istediğin global renk
+);
+
 const TextStyle textStyleM = TextStyle(
   fontFamily: "Urbanist",
   fontSize: 24,
