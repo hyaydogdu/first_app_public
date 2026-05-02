@@ -126,7 +126,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
       backgroundColor: color_1,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: color_1,
         elevation: 0,
         leading: Center(
           child: BarIconButtons(onPressed: () => Navigator.pop(context)),

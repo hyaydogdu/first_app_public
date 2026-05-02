@@ -12,7 +12,7 @@ class ExerciseSelectionPage extends StatelessWidget {
       backgroundColor: color_1,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: color_2,
+        backgroundColor: color_1,
         elevation: 0,
         leading: Center(
           child: BarIconButtons(onPressed: () => Navigator.pop(context)),

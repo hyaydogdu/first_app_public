@@ -13,7 +13,7 @@ Widget workoutSlider({
   final userWorkouts = workouts.where((w) => w.isDefault == false).toList();
 
   return Box(
-    boxColor: color_1,
+    boxColor: color_2,
     edgeSpaceAllBig: true,
     softCorners: true,
     elevation: 6, // 10 yerine daha soft
@@ -24,13 +24,10 @@ Widget workoutSlider({
         children: [
           // başlık
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(title, style: textStyleL),
           ),
           const SizedBox(height: 10),
-          Divider(height: 1),
-
-          const SizedBox(height: 12),
 
           SizedBox(
             height: 200,
@@ -70,10 +67,10 @@ Widget planSlider({
   final userPlans = plans.where((p) => p.isDefault == false).toList();
 
   return Box(
-    boxColor: color_1,
+    boxColor: color_2,
     edgeSpaceAllBig: true,
     softCorners: true,
-    elevation: 6, // 10 yerine daha soft
+    elevation: 6,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Column(
@@ -81,14 +78,11 @@ Widget planSlider({
         children: [
           // başlık
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(title, style: textStyleL),
           ),
           const SizedBox(height: 10),
-          Divider(height: 1),
-
-          const SizedBox(height: 12),
-
+          //Liste
           SizedBox(
             height: 200,
             child: ListView.separated(

@@ -1,9 +1,9 @@
 import 'package:first_app/Services/weekly_plan_api.dart';
 import 'package:first_app/models/weekly_plan_ui_model.dart';
-import 'package:flutter/material.dart';
 import 'package:first_app/Items/Barrel/item_barrel.dart';
 import 'package:first_app/models/workout_ui_model.dart';
 import 'package:first_app/services/workout_api.dart';
+import 'package:flutter/material.dart';
 
 class HomePage extends DefaultPage {
   const HomePage({super.key});
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: color_1,
-      appBar: AppBar(backgroundColor: color_1),
+      appBar: AppBar(backgroundColor: color_1, elevation: 0),
       body: ListView(
         children: [
           Container(

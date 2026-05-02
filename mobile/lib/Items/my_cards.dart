@@ -27,7 +27,7 @@ class _TodayWorkoutCardState extends State<TodayWorkoutCard> {
     );
 
     return Box(
-      boxColor: color_1,
+      boxColor: color_2,
       softCorners: true,
       edgeSpaceAllBig: true,
       elevation: 6,
@@ -46,7 +46,7 @@ class _TodayWorkoutCardState extends State<TodayWorkoutCard> {
 
             Text(
               "$exerciseCount exercises • $setCount sets",
-              style: textStyleM,
+              style: textStyleS,
             ),
 
             const SizedBox(height: 16),
@@ -80,7 +80,7 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Box(
-      boxColor: color_1,
+      boxColor: color_2,
       softCorners: true,
       edgeSpaceAllSmall: true,
       edgeSpaceHorizontal: true,

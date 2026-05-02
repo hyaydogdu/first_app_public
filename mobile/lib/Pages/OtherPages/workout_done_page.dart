@@ -29,7 +29,7 @@ class _WorkoutDonePage extends State<WorkoutDonePage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(widget.pageName),
-        backgroundColor: Colors.transparent,
+        backgroundColor: color_1,
         leading: BarIconButtons(
           onPressed: () {
             Navigator.pushAndRemoveUntil(

@@ -24,8 +24,8 @@ class WorkoutCard extends StatelessWidget {
 
     return Box(
       softCorners: true,
+      boxColor: color_1, // slider içindeyken kart beyaz olmalı
       elevation: 4,
-      boxColor: Colors.white, // slider içindeyken kart beyaz olmalı
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -89,8 +89,8 @@ class PlanCard extends StatelessWidget {
 
     return Box(
       softCorners: true,
+      boxColor: color_1,
       elevation: 4,
-      boxColor: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Column(
