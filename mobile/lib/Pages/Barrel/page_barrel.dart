@@ -5,5 +5,5 @@ export 'package:first_app/Pages/FirstPages/library_page.dart';
 export 'package:first_app/Pages/OtherPages/workout_view_page.dart';
 export 'package:first_app/Pages/OtherPages/workout_play_page.dart';
 export 'package:first_app/Pages/OtherPages/weekly_plan_view_page.dart';
-export 'package:first_app/Pages/OtherPages/exercise_selection_page.dart';
+export 'package:first_app/Pages/OtherPages/select_exercise_page.dart';
 export 'package:first_app/Pages/OtherPages/select_workout_page.dart';

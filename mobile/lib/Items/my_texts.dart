@@ -57,7 +57,7 @@ class TextBox extends StatelessWidget {
       softCorners: true,
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding ?? 20,
+          horizontal: horizontalPadding ?? 12,
           vertical: verticalPadding ?? 4,
         ),
         child: Text(

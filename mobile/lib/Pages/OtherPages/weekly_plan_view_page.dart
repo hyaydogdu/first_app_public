@@ -40,7 +40,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
         title: Text("Weekly Plan", style: textStyleM),
         backgroundColor: color_1,
         elevation: 0,
-        leading: BarIconButtons(
+        leading: BarIconButton(
           onPressed: () {
             Navigator.pop(context);
           },
@@ -50,7 +50,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
             SizedBox(
               width: kToolbarHeight,
               height: kToolbarHeight,
-              child: BarIconButtons(
+              child: BarIconButton(
                 buttonIcon: Icon(
                   isEditing ? Icons.check_rounded : Icons.edit_note_sharp,
                 ),

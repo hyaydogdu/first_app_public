@@ -35,11 +35,11 @@ class MyTextButton extends StatelessWidget {
   }
 }
 
-class BarIconButtons extends StatelessWidget {
+class BarIconButton extends StatelessWidget {
   final Icon? buttonIcon;
   final VoidCallback onPressed;
   final double? size;
-  const BarIconButtons({
+  const BarIconButton({
     super.key,
     this.buttonIcon,
     required this.onPressed,
@@ -58,23 +58,6 @@ class BarIconButtons extends StatelessWidget {
         padding: EdgeInsets.zero,
         onPressed: onPressed,
       ),
-    );
-  }
-}
-
-class IconButtonS extends StatelessWidget {
-  final VoidCallback onPressed;
-  final double? size;
-  const IconButtonS({super.key, required this.onPressed, this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      iconSize: size ?? 24,
-      alignment: Alignment.center,
-      style: IconButton.styleFrom(shadowColor: Colors.black),
-      icon: Icon(Icons.delete, color: Colors.black),
     );
   }
 }

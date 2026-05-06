@@ -190,7 +190,7 @@ class _WorkoutPlayPageState extends State<WorkoutPlayPage> {
           title: Text(widget.workout.name.toUpperCase(), style: textStyleM),
           centerTitle: true,
           leading: Center(
-            child: BarIconButtons(onPressed: () => Navigator.pop(context)),
+            child: BarIconButton(onPressed: () => Navigator.pop(context)),
           ),
         ),
         body: const Center(child: Text("No exercises found.")),
@@ -209,7 +209,7 @@ class _WorkoutPlayPageState extends State<WorkoutPlayPage> {
         title: Text(widget.workout.name.toUpperCase(), style: textStyleM),
         centerTitle: true,
         leading: Center(
-          child: BarIconButtons(onPressed: () => Navigator.pop(context)),
+          child: BarIconButton(onPressed: () => Navigator.pop(context)),
         ),
       ),
       body: Stack(
@@ -417,7 +417,7 @@ class _BottomNextExercisesSheet extends StatelessWidget {
                     // Complete exercise üst tarafı
                     Row(
                       children: [
-                        workoutImage(
+                        imageDisplayer(
                           workout.workoutExercises[curIndex].exerciseImageUrl!,
                         ),
                         const SizedBox(width: 12),
@@ -495,7 +495,7 @@ class _BottomNextExercisesSheet extends StatelessWidget {
                           ),
                           child: Text("${index + 1})", style: textStyleM),
                         ),
-                        workoutImage(we.exerciseImageUrl!),
+                        imageDisplayer(we.exerciseImageUrl!),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(

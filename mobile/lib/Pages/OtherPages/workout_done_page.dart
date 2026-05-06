@@ -30,7 +30,7 @@ class _WorkoutDonePage extends State<WorkoutDonePage> {
         centerTitle: true,
         title: Text(widget.pageName),
         backgroundColor: color_1,
-        leading: BarIconButtons(
+        leading: BarIconButton(
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,

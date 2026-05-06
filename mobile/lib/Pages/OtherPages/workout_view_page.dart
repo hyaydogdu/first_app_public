@@ -24,6 +24,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
   bool isEditing = false;
   bool isLoadingWorkout = false;
   late WorkoutUiModel currentWorkout;
+  WorkoutUiModel? editingWorkout;
 
   late TextEditingController nameController;
   late TextEditingController descriptionController;
@@ -46,10 +47,6 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
     super.dispose();
   }
 
-  void refreshPage() {
-    setState(() {});
-  }
-
   Future<void> _loadWorkoutDetails() async {
     setState(() {
       isLoadingWorkout = true;
@@ -60,9 +57,11 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
       if (!mounted) return;
 
       setState(() {
-        currentWorkout = workout;
-        nameController.text = workout.name;
-        descriptionController.text = workout.description ?? "";
+        if (!isEditing) {
+          currentWorkout = workout;
+          nameController.text = workout.name;
+          descriptionController.text = workout.description ?? "";
+        }
       });
     } catch (e) {
       debugPrint("Failed to load workout details: $e");
@@ -78,6 +77,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
   Future<void> _save() async {
     final newName = nameController.text.trim();
     final newDesc = descriptionController.text.trim();
+    final workoutToSave = editingWorkout ?? currentWorkout;
 
     if (newName.isEmpty) {
       ScaffoldMessenger.of(
@@ -87,29 +87,33 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
     }
 
     try {
-      for (int i = 0; i < currentWorkout.workoutExercises.length; i++) {
-        currentWorkout.workoutExercises[i] = currentWorkout.workoutExercises[i]
+      for (int i = 0; i < workoutToSave.workoutExercises.length; i++) {
+        workoutToSave.workoutExercises[i] = workoutToSave.workoutExercises[i]
             .copyWith(orderIndex: i);
       }
 
       await WorkoutApi.updateWorkoutHeader(
-        id: currentWorkout.id,
+        id: workoutToSave.id,
         name: newName,
         description: newDesc.isEmpty ? null : newDesc,
       );
 
       await WorkoutApi.updateWorkoutExercises(
-        workoutId: currentWorkout.id,
-        exercises: currentWorkout.workoutExercises,
+        workoutId: workoutToSave.id,
+        exercises: workoutToSave.workoutExercises,
       );
 
       if (!mounted) return;
 
       setState(() {
-        currentWorkout = currentWorkout.copyWith(
+        currentWorkout = WorkoutUiModel(
+          id: workoutToSave.id,
           name: newName,
           description: newDesc.isEmpty ? null : newDesc,
+          isDefault: workoutToSave.isDefault,
+          workoutExercises: workoutToSave.workoutExercises,
         );
+        editingWorkout = null;
         isEditing = false;
       });
     } catch (e) {
@@ -118,6 +122,15 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
         context,
       ).showSnackBar(const SnackBar(content: Text("Save failed")));
     }
+  }
+
+  void _startEditing() {
+    setState(() {
+      editingWorkout = _copyWorkout(currentWorkout);
+      nameController.text = currentWorkout.name;
+      descriptionController.text = currentWorkout.description ?? "";
+      isEditing = true;
+    });
   }
 
   @override
@@ -129,14 +142,14 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
         backgroundColor: color_1,
         elevation: 0,
         leading: Center(
-          child: BarIconButtons(onPressed: () => Navigator.pop(context)),
+          child: BarIconButton(onPressed: () => Navigator.pop(context)),
         ),
         actions: [
           if (!currentWorkout.isDefault)
             SizedBox(
               width: kToolbarHeight,
               height: kToolbarHeight,
-              child: BarIconButtons(
+              child: BarIconButton(
                 buttonIcon: Icon(
                   isEditing ? Icons.check_rounded : Icons.edit_note_sharp,
                 ),
@@ -144,9 +157,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
                   if (isEditing) {
                     await _save();
                   } else {
-                    setState(() {
-                      isEditing = true;
-                    });
+                    _startEditing();
                   }
                 },
               ),
@@ -157,15 +168,10 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
           ? _EditMode(
               nameController: nameController,
               descriptionController: descriptionController,
-              workout: currentWorkout,
+              workout: editingWorkout!,
               expandedMap: expandedMap,
-              refreshPage: refreshPage,
             )
-          : _ViewMode(
-              workout: currentWorkout,
-              expandedMap: expandedMap,
-              refreshPage: refreshPage,
-            ),
+          : _ViewMode(workout: currentWorkout, expandedMap: expandedMap),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: color_2,
@@ -204,16 +210,25 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
   }
 }
 
+WorkoutUiModel _copyWorkout(WorkoutUiModel workout) {
+  return workout.copyWith(
+    workoutExercises: workout.workoutExercises
+        .map(_copyWorkoutExercise)
+        .toList(),
+  );
+}
+
+WorkoutExerciseUiModel _copyWorkoutExercise(WorkoutExerciseUiModel exercise) {
+  return exercise.copyWith(
+    setList: exercise.setList.map((set) => set.copyWith()).toList(),
+  );
+}
+
 class _ViewMode extends StatelessWidget {
   final WorkoutUiModel workout;
   final Map<int, bool> expandedMap;
-  final VoidCallback refreshPage;
 
-  const _ViewMode({
-    required this.workout,
-    required this.expandedMap,
-    required this.refreshPage,
-  });
+  const _ViewMode({required this.workout, required this.expandedMap});
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +274,6 @@ class _ViewMode extends StatelessWidget {
                 we: we,
                 expandedMap: expandedMap,
                 stableKey: stableKey,
-                refreshPage: refreshPage,
               );
             },
           ),
@@ -274,14 +288,12 @@ class _EditMode extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController descriptionController;
   final Map<int, bool> expandedMap;
-  final VoidCallback refreshPage;
 
   const _EditMode({
     required this.workout,
     required this.nameController,
     required this.descriptionController,
     required this.expandedMap,
-    required this.refreshPage,
   });
 
   @override
@@ -317,8 +329,6 @@ class _EditModeState extends State<_EditMode> {
         ),
       );
     });
-
-    widget.refreshPage();
   }
 
   int _stableExerciseKey(WorkoutExerciseUiModel we) {
@@ -333,8 +343,6 @@ class _EditModeState extends State<_EditMode> {
             .copyWith(orderIndex: i);
       }
     });
-
-    widget.refreshPage();
   }
 
   void addSetToExercise(WorkoutExerciseUiModel we) {
@@ -348,8 +356,6 @@ class _EditModeState extends State<_EditMode> {
 
       we.setList.add(newSet);
     });
-
-    widget.refreshPage();
   }
 
   @override
@@ -431,8 +437,6 @@ class _EditModeState extends State<_EditMode> {
                       ..clear()
                       ..addAll(list);
                   });
-
-                  widget.refreshPage();
                 },
                 itemBuilder: (context, index) {
                   final we = sortedExercises[index];
@@ -443,7 +447,6 @@ class _EditModeState extends State<_EditMode> {
                     we: we,
                     expandedMap: widget.expandedMap,
                     stableKey: _stableExerciseKey(we),
-                    refreshPage: widget.refreshPage,
                     onDeleteExercise: () => deleteExercise(we),
                     onAddSet: () => addSetToExercise(we),
                     onUpdateSet: (setIndex, updatedSet) {
@@ -460,8 +463,6 @@ class _EditModeState extends State<_EditMode> {
                           setList: newSetList,
                         );
                       });
-
-                      widget.refreshPage();
                     },
                     onDeleteSet: (setIndex) {
                       setState(() {
@@ -481,8 +482,6 @@ class _EditModeState extends State<_EditMode> {
                           setList: fixed,
                         );
                       });
-
-                      widget.refreshPage();
                     },
                   );
                 },
@@ -493,15 +492,11 @@ class _EditModeState extends State<_EditMode> {
                 left: defaultHeight,
                 right: defaultHeight,
                 bottom: defaultHeight / 2,
-                child: Material(
-                  elevation: 6,
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.transparent,
-                  child: MyTextButton(
-                    text: "Add Exercise",
-                    color: color_2,
-                    onPressed: () => addExercise(context),
-                  ),
+                child: MyTextButton(
+                  text: "Add Exercise",
+                  color: color_2,
+                  strokeColor: Colors.black,
+                  onPressed: () => addExercise(context),
                 ),
               ),
             ],
