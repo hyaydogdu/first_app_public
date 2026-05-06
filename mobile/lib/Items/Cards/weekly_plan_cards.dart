@@ -112,14 +112,14 @@ class _WeekDayCardBase extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _cardPart(height: defaultHeight),
-                  _cardPart(
+                  cardPart(height: defaultHeight),
+                  cardPart(
                     alignment: Alignment.topLeft,
                     boxLeft: 1,
                     height: defaultHeight * 2,
                     child: Text(day, style: textStyleM),
                   ),
-                  _cardPart(
+                  cardPart(
                     alignment: Alignment.topLeft,
                     boxLeft: 1,
                     height: defaultHeight * 2,
@@ -128,7 +128,7 @@ class _WeekDayCardBase extends StatelessWidget {
                       style: textStyleM,
                     ),
                   ),
-                  _cardPart(
+                  cardPart(
                     alignment: Alignment.topLeft,
                     boxLeft: 1,
                     height: defaultHeight * 3,
@@ -146,7 +146,7 @@ class _WeekDayCardBase extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   for (var widget in rightWidgets)
-                    _cardPart(
+                    cardPart(
                       boxRight: boxRightCount,
                       height: defaultHeight * 7 / rightWidgets.length,
                       child: widget,
@@ -159,38 +159,6 @@ class _WeekDayCardBase extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _cardPart({
-  // tool to create parts of cards with consistent spacing and alignment
-  Alignment? alignment,
-  int? boxRight,
-  int? boxLeft,
-  Widget? child,
-  required double height,
-}) {
-  return ConstrainedBox(
-    constraints: BoxConstraints.tightFor(height: height),
-    child: Row(
-      children: [
-        if (boxLeft != null)
-          for (int i = 0; i < boxLeft; i++) SizedBox(width: defaultHeight),
-        child != null
-            ? Expanded(
-                child: Box(
-                  boxColor: Colors.transparent,
-                  child: Align(
-                    alignment: alignment ?? Alignment.center,
-                    child: child,
-                  ),
-                ),
-              )
-            : SizedBox(),
-        if (boxRight != null)
-          for (int i = 0; i < boxRight; i++) SizedBox(width: defaultHeight),
-      ],
-    ),
-  );
 }
 
 WorkoutUiModel? _findDayWorkout(WeeklyPlanUiModel weeklyPlan, String day) {

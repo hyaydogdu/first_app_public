@@ -44,9 +44,9 @@ class _ExerciseSelectionPageState extends State<ExerciseSelectionPage> {
 
           return Column(
             children: [
-              Text(
-                "${exercises.length} exercises available",
-                style: textStyleM,
+              Box(
+                edgeSpaceAllBig: true,
+                child: AppVideoPlayer(url: exercises[4].videoUrl!),
               ),
               SizedBox(height: defaultHeight),
               ViewExercises(exercises: exercises),
@@ -67,7 +67,7 @@ class ViewExercises extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Box(
-        boxColor: color_2,
+        boxColor: color_1,
         child: exercises.isEmpty
             ? const Center(child: Text("Exercise yok"))
             : ListView.builder(

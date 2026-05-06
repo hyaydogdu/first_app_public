@@ -99,7 +99,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Exercise>().HasData(
             new Exercise { Id = 1, Name = "Bench Press", Notes = "Chest", ImageUrl = "/exercises/Photos/foto1.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
             new Exercise { Id = 2, Name = "Skull Crusher", Notes = "Triceps", ImageUrl = "/exercises/Photos/foto2.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
-            new Exercise { Id = 3, Name = "Pull Up", Notes = "Back", ImageUrl = "/exercises/Photos/foto3.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" }
+            new Exercise { Id = 3, Name = "Pull Up", Notes = "Back", ImageUrl = "/exercises/Photos/foto3.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
+            new Exercise { Id = 4, Name = "Bicep Curl", Notes = "Bicep", ImageUrl = "/exercises/Photos/foto3.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" }
         );
     }
 }

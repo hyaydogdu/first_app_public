@@ -5,20 +5,79 @@ import 'package:first_app/Items/Barrel/item_barrel.dart';
 
 class SelectExerciseCard extends StatelessWidget {
   final ExerciseUiModel exercise;
+
   const SelectExerciseCard({super.key, required this.exercise});
 
   @override
   Widget build(BuildContext context) {
+    final Color cardColor = color_2;
+
     return InkWell(
-      onTap: () {
-        Navigator.pop(context, exercise);
-      },
-      borderRadius: BorderRadius.circular(8),
+      onTap: () => Navigator.pop(context, exercise),
       child: BorderBox(
-        boxColor: color_1,
-        edgeSpaceAllSmall: true,
+        boxColor: cardColor,
+        strokeColor: cardColor,
         softCorners: true,
-        child: Row(children: [Text(exercise.name, style: textStyleM)]),
+        edgeSpaceAllSmall: true,
+        edgeSpaceHorizontal: true,
+        elevation: 4,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  cardPart(height: defaultHeight),
+                  cardPart(
+                    alignment: Alignment.centerLeft,
+                    boxLeft: 1,
+                    height: defaultHeight * 4,
+                    child: imageDisplayer(
+                      exercise.imageUrl!,
+                      size: defaultHeight * 4,
+                    ),
+                  ),
+
+                  cardPart(height: defaultHeight),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  cardPart(
+                    alignment: Alignment.centerLeft,
+                    boxLeft: 0,
+                    height: defaultHeight * 6,
+                    child: Text(exercise.name, style: textStyleM),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  cardPart(
+                    alignment: Alignment.centerRight,
+                    boxRight: 1,
+                    height: defaultHeight * 6,
+                    child: MyTextButton(
+                      text: "Add \nExercise",
+                      textStyle: textStyleS,
+                      strokeColor: Colors.black,
+                      onPressed: () {},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

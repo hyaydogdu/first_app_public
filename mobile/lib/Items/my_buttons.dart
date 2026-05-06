@@ -3,6 +3,7 @@ import 'package:first_app/Items/Barrel/item_barrel.dart';
 
 class MyTextButton extends StatelessWidget {
   final String text;
+  final TextStyle? textStyle;
   final Color? color;
   final Color? strokeColor;
   final Color? textColor;
@@ -17,6 +18,7 @@ class MyTextButton extends StatelessWidget {
     this.strokeColor,
     this.textColor,
     this.elevation,
+    this.textStyle,
   });
 
   @override
@@ -30,7 +32,11 @@ class MyTextButton extends StatelessWidget {
         elevation: elevation ?? 0,
       ),
       onPressed: onPressed,
-      child: Text(text, style: textStyleS, textAlign: TextAlign.center),
+      child: Text(
+        text,
+        style: textStyle ?? textStyleS,
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }

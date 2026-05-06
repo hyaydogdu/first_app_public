@@ -3,23 +3,12 @@ import 'package:first_app/Services/api_config.dart';
 import 'package:video_player/video_player.dart';
 
 class AppVideoPlayer extends StatefulWidget {
-  /// url null olabilir.
-  /// - null/empty ise fallbackPath kullanılır.
-  /// - "/exercises/Videos/Video1.mp4" gibi relative gelirse baseUrl ile birleştirilir.
-  /// - "http..." gelirse olduğu gibi kullanılır.
   final String? url;
-
-  /// Örn (emulator): "http://10.0.2.2:5018"
-  /// Örn (real device): "http://192.168.1.15:5018"
-
-  /// url null/empty ise kullanılacak path
   final String fallbackPath;
 
-  /// UI
   final double borderRadius;
   final Color backgroundColor;
 
-  /// Behavior
   final bool autoPlay;
   final bool looping;
   final bool showControls;
@@ -47,7 +36,7 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   String? _error;
   int _bootVersion = 0;
 
-  String baseUrl = ApiConfig.baseUrl;
+  String get baseUrl => ApiConfig.baseUrl;
 
   @override
   void initState() {
@@ -58,9 +47,11 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   @override
   void didUpdateWidget(covariant AppVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     final sourceChanged =
         oldWidget.url != widget.url ||
         oldWidget.fallbackPath != widget.fallbackPath;
+
     final behaviorChanged =
         oldWidget.autoPlay != widget.autoPlay ||
         oldWidget.looping != widget.looping;
@@ -70,22 +61,24 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
     }
   }
 
-  String _resolveUrl() {
+  String? _resolveUrl() {
     final raw = (widget.url == null || widget.url!.trim().isEmpty)
         ? widget.fallbackPath.trim()
         : widget.url!.trim();
 
-    if (raw.isEmpty) {
-      throw StateError("Video URL is empty");
+    if (raw.isEmpty) return null;
+
+    final uri = Uri.tryParse(raw);
+    if (uri != null && uri.hasScheme && uri.hasAuthority) {
+      return raw;
     }
 
-    // Zaten tam URL ise dokunma
-    if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+    final cleanBase = baseUrl.trim();
+    if (cleanBase.isEmpty) return null;
 
-    // baseUrl + path
-    final base = baseUrl.endsWith("/")
-        ? baseUrl.substring(0, baseUrl.length - 1)
-        : baseUrl;
+    final base = cleanBase.endsWith("/")
+        ? cleanBase.substring(0, cleanBase.length - 1)
+        : cleanBase;
 
     final path = raw.startsWith("/") ? raw : "/$raw";
     return "$base$path";
@@ -93,44 +86,65 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
 
   void _boot() {
     final bootVersion = ++_bootVersion;
+
     _error = null;
+    _initFuture = null;
     _disposeController();
 
     final resolved = _resolveUrl();
+
+    if (resolved == null || resolved.isEmpty) {
+      _error = "Video kaynağı yok";
+      if (mounted) setState(() {});
+      return;
+    }
+
+    final uri = Uri.tryParse(resolved);
+    if (uri == null || !uri.hasScheme) {
+      _error = "Geçersiz video adresi";
+      if (mounted) setState(() {});
+      return;
+    }
+
     debugPrint("VIDEO_URL => $resolved");
 
-    final c = VideoPlayerController.networkUrl(Uri.parse(resolved));
-    _controller = c;
-
-    if (mounted) {
-      setState(() {});
-    }
+    final controller = VideoPlayerController.networkUrl(uri);
+    _controller = controller;
 
     _initFuture = () async {
       try {
-        await c.initialize();
-        await c.setLooping(widget.looping);
+        await controller.initialize();
+
+        if (bootVersion != _bootVersion) return;
+
+        await controller.setLooping(widget.looping);
+
         if (widget.autoPlay) {
-          await c.play();
+          await controller.play();
         }
       } catch (e) {
-        if (bootVersion != _bootVersion) return;
-        _error = e.toString();
+        if (bootVersion == _bootVersion) {
+          _error = "Video açılamadı: $e";
+        }
       }
+
       if (mounted && bootVersion == _bootVersion) {
         setState(() {});
       }
     }();
+
+    if (mounted) setState(() {});
   }
 
   void _disposeController() {
-    final c = _controller;
+    final controller = _controller;
     _controller = null;
-    c?.dispose();
+    controller?.dispose();
   }
 
   @override
   void dispose() {
+    _bootVersion++;
     _disposeController();
     super.dispose();
   }
@@ -141,46 +155,52 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
       borderRadius: BorderRadius.circular(widget.borderRadius),
       child: Container(
         color: widget.backgroundColor,
-        child: _initFuture == null
-            ? const SizedBox.shrink()
-            : FutureBuilder<void>(
-                future: _initFuture,
-                builder: (context, snapshot) {
-                  if (_error != null) {
-                    return _ErrorView(message: _error!, onRetry: _boot);
-                  }
-
-                  if (snapshot.connectionState != ConnectionState.done ||
-                      _controller == null ||
-                      !_controller!.value.isInitialized) {
-                    return const Center(
-                      child: SizedBox(
-                        width: 28,
-                        height: 28,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    );
-                  }
-
-                  final c = _controller!;
-                  final aspect = c.value.aspectRatio == 0
-                      ? (16 / 9)
-                      : c.value.aspectRatio;
-
-                  return Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      AspectRatio(aspectRatio: aspect, child: VideoPlayer(c)),
-                      if (widget.showControls)
-                        _ControlsBar(
-                          controller: c,
-                          allowScrubbing: widget.allowScrubbing,
-                        ),
-                    ],
-                  );
-                },
-              ),
+        constraints: const BoxConstraints(minHeight: 180),
+        child: _buildContent(),
       ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (_error != null) {
+      return _ErrorView(message: _error!, onRetry: _boot);
+    }
+
+    if (_initFuture == null) {
+      return const _StatusView(message: "Video hazırlanıyor");
+    }
+
+    return FutureBuilder<void>(
+      future: _initFuture,
+      builder: (context, snapshot) {
+        final controller = _controller;
+
+        if (_error != null) {
+          return _ErrorView(message: _error!, onRetry: _boot);
+        }
+
+        if (snapshot.connectionState != ConnectionState.done ||
+            controller == null ||
+            !controller.value.isInitialized) {
+          return const _StatusView(message: "Video yükleniyor");
+        }
+
+        final aspect = controller.value.aspectRatio <= 0
+            ? 16 / 9
+            : controller.value.aspectRatio;
+
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            AspectRatio(aspectRatio: aspect, child: VideoPlayer(controller)),
+            if (widget.showControls)
+              _ControlsBar(
+                controller: controller,
+                allowScrubbing: widget.allowScrubbing,
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -191,74 +211,97 @@ class _ControlsBar extends StatelessWidget {
 
   const _ControlsBar({required this.controller, required this.allowScrubbing});
 
-  String _fmt(Duration d) {
+  String _fmt(Duration duration) {
     String two(int n) => n.toString().padLeft(2, "0");
-    final m = two(d.inMinutes.remainder(60));
-    final s = two(d.inSeconds.remainder(60));
-    final h = d.inHours;
-    return h > 0 ? "${two(h)}:$m:$s" : "$m:$s";
+
+    final hours = duration.inHours;
+    final minutes = two(duration.inMinutes.remainder(60));
+    final seconds = two(duration.inSeconds.remainder(60));
+
+    return hours > 0 ? "${two(hours)}:$minutes:$seconds" : "$minutes:$seconds";
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withValues(alpha: 0.35),
+      color: Colors.black.withOpacity(0.35),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(
-              controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-              color: Colors.white,
-            ),
-            onPressed: () {
-              if (controller.value.isPlaying) {
-                controller.pause();
-              } else {
-                controller.play();
-              }
-            },
-          ),
-          const SizedBox(width: 6),
-          ValueListenableBuilder(
-            valueListenable: controller,
-            builder: (context, VideoPlayerValue v, _) {
-              final pos = v.position;
-              final dur = v.duration;
-              final maxMs = dur.inMilliseconds <= 0 ? 1 : dur.inMilliseconds;
-              final value = pos.inMilliseconds.clamp(0, maxMs).toDouble();
+      child: ValueListenableBuilder<VideoPlayerValue>(
+        valueListenable: controller,
+        builder: (context, value, _) {
+          final pos = value.position;
+          final dur = value.duration;
+          final maxMs = dur.inMilliseconds <= 0 ? 1 : dur.inMilliseconds;
+          final sliderValue = pos.inMilliseconds.clamp(0, maxMs).toDouble();
 
-              return Expanded(
-                child: Row(
-                  children: [
-                    Text(
-                      _fmt(pos),
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Slider(
-                        value: value,
-                        min: 0,
-                        max: maxMs.toDouble(),
-                        onChanged: allowScrubbing
-                            ? (x) => controller.seekTo(
-                                Duration(milliseconds: x.toInt()),
-                              )
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _fmt(dur),
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ],
+          return Row(
+            children: [
+              IconButton(
+                icon: Icon(
+                  value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  color: Colors.white,
                 ),
-              );
-            },
-          ),
-        ],
+                onPressed: () {
+                  value.isPlaying ? controller.pause() : controller.play();
+                },
+              ),
+              const SizedBox(width: 6),
+              Text(
+                _fmt(pos),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Slider(
+                  value: sliderValue,
+                  min: 0,
+                  max: maxMs.toDouble(),
+                  onChanged: allowScrubbing
+                      ? (x) {
+                          controller.seekTo(Duration(milliseconds: x.toInt()));
+                        }
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _fmt(dur),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _StatusView extends StatelessWidget {
+  final String message;
+
+  const _StatusView({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 28,
+              height: 28,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -281,7 +324,7 @@ class _ErrorView extends StatelessWidget {
             const Icon(Icons.error_outline, color: Colors.white, size: 34),
             const SizedBox(height: 10),
             const Text(
-              "Video açılamadı",
+              "Video gösterilemiyor",
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 6),
@@ -289,7 +332,7 @@ class _ErrorView extends StatelessWidget {
               message,
               style: const TextStyle(color: Colors.white70, fontSize: 12),
               textAlign: TextAlign.center,
-              maxLines: 3,
+              maxLines: 4,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 12),
