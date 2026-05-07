@@ -110,6 +110,7 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
 
     final controller = VideoPlayerController.networkUrl(uri);
     _controller = controller;
+    controller.addListener(() => _handleControllerUpdate(controller));
 
     _initFuture = () async {
       try {
@@ -134,6 +135,26 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
     }();
 
     if (mounted) setState(() {});
+  }
+
+  void _handleControllerUpdate(VideoPlayerController controller) {
+    if (!mounted || _controller != controller || _error != null) return;
+
+    final value = controller.value;
+    if (!value.hasError) return;
+
+    setState(() {
+      _error = _formatVideoError(value.errorDescription);
+    });
+  }
+
+  String _formatVideoError(Object? error) {
+    final detail = error?.toString().trim();
+    if (detail == null || detail.isEmpty) {
+      return "Video oynatıcı bilinmeyen bir hata aldı";
+    }
+
+    return "Video oynatıcı hatası: $detail";
   }
 
   void _disposeController() {
@@ -179,27 +200,52 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
           return _ErrorView(message: _error!, onRetry: _boot);
         }
 
+        if (snapshot.hasError) {
+          return _ErrorView(
+            message: _formatVideoError(snapshot.error),
+            onRetry: _boot,
+          );
+        }
+
+        if (controller != null && controller.value.hasError) {
+          return _ErrorView(
+            message: _formatVideoError(controller.value.errorDescription),
+            onRetry: _boot,
+          );
+        }
+
         if (snapshot.connectionState != ConnectionState.done ||
             controller == null ||
             !controller.value.isInitialized) {
           return const _StatusView(message: "Video yükleniyor");
         }
 
-        final aspect = controller.value.aspectRatio <= 0
-            ? 16 / 9
-            : controller.value.aspectRatio;
+        try {
+          final aspect = controller.value.aspectRatio <= 0
+              ? 16 / 9
+              : controller.value.aspectRatio;
 
-        return Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            AspectRatio(aspectRatio: aspect, child: VideoPlayer(controller)),
-            if (widget.showControls)
-              _ControlsBar(
-                controller: controller,
-                allowScrubbing: widget.allowScrubbing,
-              ),
-          ],
-        );
+          return Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              AspectRatio(aspectRatio: aspect, child: VideoPlayer(controller)),
+              if (widget.showControls)
+                _ControlsBar(
+                  controller: controller,
+                  allowScrubbing: widget.allowScrubbing,
+                  onError: (error) {
+                    if (!mounted) return;
+                    setState(() {
+                      _error = _formatVideoError(error);
+                    });
+                  },
+                ),
+            ],
+          );
+        } catch (e) {
+          _error = _formatVideoError(e);
+          return _ErrorView(message: _error!, onRetry: _boot);
+        }
       },
     );
   }
@@ -208,8 +254,13 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
 class _ControlsBar extends StatelessWidget {
   final VideoPlayerController controller;
   final bool allowScrubbing;
+  final ValueChanged<Object> onError;
 
-  const _ControlsBar({required this.controller, required this.allowScrubbing});
+  const _ControlsBar({
+    required this.controller,
+    required this.allowScrubbing,
+    required this.onError,
+  });
 
   String _fmt(Duration duration) {
     String two(int n) => n.toString().padLeft(2, "0");
@@ -224,7 +275,7 @@ class _ControlsBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black.withOpacity(0.35),
+      color: Colors.black.withAlpha(90),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: ValueListenableBuilder<VideoPlayerValue>(
         valueListenable: controller,
@@ -241,8 +292,14 @@ class _ControlsBar extends StatelessWidget {
                   value.isPlaying ? Icons.pause : Icons.play_arrow,
                   color: Colors.white,
                 ),
-                onPressed: () {
-                  value.isPlaying ? controller.pause() : controller.play();
+                onPressed: () async {
+                  try {
+                    value.isPlaying
+                        ? await controller.pause()
+                        : await controller.play();
+                  } catch (e) {
+                    onError(e);
+                  }
                 },
               ),
               const SizedBox(width: 6),
@@ -257,8 +314,14 @@ class _ControlsBar extends StatelessWidget {
                   min: 0,
                   max: maxMs.toDouble(),
                   onChanged: allowScrubbing
-                      ? (x) {
-                          controller.seekTo(Duration(milliseconds: x.toInt()));
+                      ? (x) async {
+                          try {
+                            await controller.seekTo(
+                              Duration(milliseconds: x.toInt()),
+                            );
+                          } catch (e) {
+                            onError(e);
+                          }
                         }
                       : null,
                 ),

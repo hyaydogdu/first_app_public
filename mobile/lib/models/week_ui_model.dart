@@ -60,6 +60,40 @@ class WeekUiModel {
     );
   }
 
+  WeekUiModel copyWith({
+    int? mondayWorkoutId,
+    WorkoutUiModel? mondayWorkout,
+    int? tuesdayWorkoutId,
+    WorkoutUiModel? tuesdayWorkout,
+    int? wednesdayWorkoutId,
+    WorkoutUiModel? wednesdayWorkout,
+    int? thursdayWorkoutId,
+    WorkoutUiModel? thursdayWorkout,
+    int? fridayWorkoutId,
+    WorkoutUiModel? fridayWorkout,
+    int? saturdayWorkoutId,
+    WorkoutUiModel? saturdayWorkout,
+    int? sundayWorkoutId,
+    WorkoutUiModel? sundayWorkout,
+  }) {
+    return WeekUiModel(
+      mondayWorkoutId: mondayWorkoutId ?? this.mondayWorkoutId,
+      mondayWorkout: mondayWorkout ?? this.mondayWorkout,
+      tuesdayWorkoutId: tuesdayWorkoutId ?? this.tuesdayWorkoutId,
+      tuesdayWorkout: tuesdayWorkout ?? this.tuesdayWorkout,
+      wednesdayWorkoutId: wednesdayWorkoutId ?? this.wednesdayWorkoutId,
+      wednesdayWorkout: wednesdayWorkout ?? this.wednesdayWorkout,
+      thursdayWorkoutId: thursdayWorkoutId ?? this.thursdayWorkoutId,
+      thursdayWorkout: thursdayWorkout ?? this.thursdayWorkout,
+      fridayWorkoutId: fridayWorkoutId ?? this.fridayWorkoutId,
+      fridayWorkout: fridayWorkout ?? this.fridayWorkout,
+      saturdayWorkoutId: saturdayWorkoutId ?? this.saturdayWorkoutId,
+      saturdayWorkout: saturdayWorkout ?? this.saturdayWorkout,
+      sundayWorkoutId: sundayWorkoutId ?? this.sundayWorkoutId,
+      sundayWorkout: sundayWorkout ?? this.sundayWorkout,
+    );
+  }
+
   static Map<String, dynamic>? _workoutJson(
     Map<String, dynamic> json,
     String day,

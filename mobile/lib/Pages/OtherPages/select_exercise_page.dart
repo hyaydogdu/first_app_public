@@ -12,6 +12,7 @@ class ExerciseSelectionPage extends StatefulWidget {
 
 class _ExerciseSelectionPageState extends State<ExerciseSelectionPage> {
   late Future<List<ExerciseUiModel>> _future;
+  ExerciseUiModel? _previewExercise;
 
   @override
   void initState() {
@@ -41,15 +42,45 @@ class _ExerciseSelectionPageState extends State<ExerciseSelectionPage> {
           }
 
           final exercises = snapshot.data ?? [];
+          _previewExercise ??= exercises.isNotEmpty ? exercises.first : null;
 
           return Column(
             children: [
               Box(
+                boxColor: color_2,
+                softCorners: true,
                 edgeSpaceAllBig: true,
-                child: AppVideoPlayer(url: exercises[4].videoUrl!),
+                elevation: 4,
+                child: Column(
+                  children: [
+                    Box(
+                      edgeSpaceAllSmall: true,
+                      edgeSpaceHorizontal: true,
+                      child: AppVideoPlayer(url: _previewExercise?.videoUrl),
+                    ),
+                    Text(
+                      _previewExercise?.name ?? "Select to view",
+                      style: textStyleM,
+                    ),
+                    SizedBox(height: defaultHeight),
+                    MyTextButton(
+                      text: "Select The Exercise",
+                      strokeColor: Colors.black,
+                      onPressed: () => Navigator.pop(context, _previewExercise),
+                    ),
+                    SizedBox(height: defaultHeight),
+                  ],
+                ),
               ),
-              SizedBox(height: defaultHeight),
-              ViewExercises(exercises: exercises),
+
+              ViewExercises(
+                exercises: exercises,
+                onViewExercise: (exercise) {
+                  setState(() {
+                    _previewExercise = exercise;
+                  });
+                },
+              ),
             ],
           );
         },
@@ -60,8 +91,13 @@ class _ExerciseSelectionPageState extends State<ExerciseSelectionPage> {
 
 class ViewExercises extends StatelessWidget {
   final List<ExerciseUiModel> exercises;
+  final ValueChanged<ExerciseUiModel> onViewExercise;
 
-  const ViewExercises({super.key, required this.exercises});
+  const ViewExercises({
+    super.key,
+    required this.exercises,
+    required this.onViewExercise,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +110,10 @@ class ViewExercises extends StatelessWidget {
                 itemCount: exercises.length,
                 itemBuilder: (context, index) {
                   final exercise = exercises[index];
-                  return SelectExerciseCard(exercise: exercise);
+                  return SelectExerciseCard(
+                    exercise: exercise,
+                    onViewExercise: () => onViewExercise(exercise),
+                  );
                 },
               ),
       ),

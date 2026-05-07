@@ -40,4 +40,32 @@ class WeeklyPlanApi {
 
     return plans;
   }
+
+  static Future<WeeklyPlanUiModel> getWeeklyPlanById(int id) async {
+    final res = await http.get(Uri.parse("$baseUrl/$id"));
+
+    if (res.statusCode != 200) {
+      throw Exception("Failed: ${res.statusCode}");
+    }
+
+    return WeeklyPlanUiModel.fromJson(
+      jsonDecode(res.body) as Map<String, dynamic>,
+    );
+  }
+
+  static Future<void> assignWorkoutToDay({
+    required int weeklyPlanId,
+    required String day,
+    required int workoutId,
+  }) async {
+    final res = await http.put(
+      Uri.parse("$baseUrl/$weeklyPlanId/assign"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"day": day, "workoutId": workoutId}),
+    );
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception("Failed: ${res.statusCode}");
+    }
+  }
 }

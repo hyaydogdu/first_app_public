@@ -143,7 +143,7 @@ public class WeeklyPlansController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        return Ok(plan);
+        return NoContent();
     }
 
     // DELETE

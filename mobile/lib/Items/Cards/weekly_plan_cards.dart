@@ -37,11 +37,14 @@ class WeekDayCard extends StatelessWidget {
 class WeekDayCardEdit extends StatelessWidget {
   final String day;
   final WeeklyPlanUiModel weeklyPlan;
+  final Future<void> Function(String day, WorkoutUiModel workout)
+  onWorkoutChanged;
 
   const WeekDayCardEdit({
     super.key,
     required this.day,
     required this.weeklyPlan,
+    required this.onWorkoutChanged,
   });
 
   @override
@@ -56,10 +59,13 @@ class WeekDayCardEdit extends StatelessWidget {
           strokeColor: Colors.black,
           text: theWorkout == null ? "Add     Workout" : "Change Workout",
           onPressed: () async {
-            await Navigator.push(
+            final selected = await Navigator.push<WorkoutUiModel>(
               context,
               MaterialPageRoute(builder: (_) => SelectWorkoutPage()),
             );
+
+            if (selected == null) return;
+            await onWorkoutChanged(day, selected);
           },
         ),
       ],
@@ -162,6 +168,10 @@ class _WeekDayCardBase extends StatelessWidget {
 }
 
 WorkoutUiModel? _findDayWorkout(WeeklyPlanUiModel weeklyPlan, String day) {
+  if (weeklyPlan.week == null) {
+    return null;
+  }
+
   switch (day) {
     case "Monday":
       return weeklyPlan.week!.mondayWorkout;

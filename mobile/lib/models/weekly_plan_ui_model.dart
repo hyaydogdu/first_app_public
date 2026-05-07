@@ -34,4 +34,21 @@ class WeeklyPlanUiModel {
       week: week,
     );
   }
+
+  WeeklyPlanUiModel copyWith({
+    String? name,
+    String? description,
+    bool? isDefault,
+    DateTime? createdAt,
+    WeekUiModel? week,
+  }) {
+    return WeeklyPlanUiModel(
+      id: id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      isDefault: isDefault ?? this.isDefault,
+      createdAt: createdAt ?? this.createdAt,
+      week: week ?? this.week,
+    );
+  }
 }
