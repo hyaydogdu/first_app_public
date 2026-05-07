@@ -104,7 +104,7 @@ class SelectWorkoutCard extends StatelessWidget {
     final Color cardColor = color_2;
 
     return InkWell(
-      onTap: onViewWorkout,
+      onTap: () => Navigator.pop(context, workout),
       child: BorderBox(
         boxColor: cardColor,
         strokeColor: cardColor,
@@ -114,20 +114,21 @@ class SelectWorkoutCard extends StatelessWidget {
         elevation: 4,
         child: Row(
           children: [
-            Expanded(child: cardPart(height: defaultHeight)),
             Expanded(
               child: cardPart(
-                height: defaultHeight * 4,
+                alignment: Alignment.centerLeft,
+                boxLeft: 1,
+                height: defaultHeight * 8,
                 child: Text(workout.name, style: textStyleM),
               ),
             ),
             Expanded(
               child: cardPart(
-                height: defaultHeight * 4,
+                height: defaultHeight * 8,
                 alignment: Alignment.centerRight,
                 boxRight: 1,
                 child: MyTextButton(
-                  text: "View \nWorkout",
+                  text: "View Workout",
                   textStyle: textStyleS,
                   strokeColor: Colors.black,
                   onPressed: onViewWorkout,

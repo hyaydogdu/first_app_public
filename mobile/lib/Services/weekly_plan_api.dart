@@ -68,4 +68,31 @@ class WeeklyPlanApi {
       throw Exception("Failed: ${res.statusCode}");
     }
   }
+
+  static Future<void> updateWeeklyPlan(WeeklyPlanUiModel weeklyPlan) async {
+    final week = weeklyPlan.week;
+
+    final res = await http.put(
+      Uri.parse("$baseUrl/${weeklyPlan.id}"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "name": weeklyPlan.name,
+        "description": weeklyPlan.description,
+        "mondayWorkoutId": week?.mondayWorkoutId ?? week?.mondayWorkout?.id,
+        "tuesdayWorkoutId": week?.tuesdayWorkoutId ?? week?.tuesdayWorkout?.id,
+        "wednesdayWorkoutId":
+            week?.wednesdayWorkoutId ?? week?.wednesdayWorkout?.id,
+        "thursdayWorkoutId":
+            week?.thursdayWorkoutId ?? week?.thursdayWorkout?.id,
+        "fridayWorkoutId": week?.fridayWorkoutId ?? week?.fridayWorkout?.id,
+        "saturdayWorkoutId":
+            week?.saturdayWorkoutId ?? week?.saturdayWorkout?.id,
+        "sundayWorkoutId": week?.sundayWorkoutId ?? week?.sundayWorkout?.id,
+      }),
+    );
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception("Failed: ${res.statusCode}");
+    }
+  }
 }

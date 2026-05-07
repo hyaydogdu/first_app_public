@@ -17,59 +17,39 @@ class WeeklyPlanViewPage extends DefaultPage {
 }
 
 class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
-  bool isEditing = false;
-  late WeeklyPlanUiModel currentWeeklyPlan;
-  late WeeklyPlanUiModel editedWeeklyPlan;
+  bool editMode = false;
+  late WeeklyPlanUiModel weeklyPlan;
 
   @override
   void initState() {
     super.initState();
-    currentWeeklyPlan = widget.weeklyPlan;
-    editedWeeklyPlan = widget.weeklyPlan;
+    weeklyPlan = widget.weeklyPlan;
+  }
+
+  Future<void> _onWorkoutChanged(String day, WorkoutUiModel workout) async {
+    setState(() {
+      weeklyPlan = _copyWeeklyPlanWithDayWorkout(weeklyPlan, workout, day);
+    });
   }
 
   Future<void> _save() async {
-    // Kaydetme işlemi burada yapılır (örneğin, veritabanına kaydetme)
-    // Bu örnekte sadece düzenleme modunu kapatıyoruz
-    setState(() {
-      currentWeeklyPlan = editedWeeklyPlan;
-      isEditing = false;
-    });
+    await WeeklyPlanApi.updateWeeklyPlan(weeklyPlan);
   }
 
-  void _startEditing() {
-    setState(() {
-      editedWeeklyPlan = currentWeeklyPlan;
-      isEditing = true;
-    });
-  }
-
-  Future<void> _changeDayWorkout(String day, WorkoutUiModel workout) async {
-    final previousEditedWeeklyPlan = editedWeeklyPlan;
-
-    setState(() {
-      editedWeeklyPlan = _copyWeeklyPlanWithDayWorkout(
-        editedWeeklyPlan,
-        day,
-        workout,
-      );
-    });
-
-    try {
-      await WeeklyPlanApi.assignWorkoutToDay(
-        weeklyPlanId: editedWeeklyPlan.id,
-        day: day,
-        workoutId: workout.id,
-      );
-    } catch (e) {
-      debugPrint("Failed to change weekly plan workout: $e");
-      if (!mounted) return;
+  Future<void> _toggleEditMode() async {
+    {
       setState(() {
-        editedWeeklyPlan = previousEditedWeeklyPlan;
+        editMode = true;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Workout değiştirilemedi")));
+    }
+  }
+
+  Future<void> _toggleViewMode() async {
+    {
+      setState(() {
+        editMode = false;
+        _save();
+      });
     }
   }
 
@@ -88,85 +68,25 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
           },
         ),
         actions: [
-          if (!currentWeeklyPlan.isDefault)
-            SizedBox(
-              width: kToolbarHeight,
-              height: kToolbarHeight,
-              child: BarIconButton(
-                buttonIcon: Icon(
-                  isEditing ? Icons.check_rounded : Icons.edit_note_sharp,
-                ),
-                onPressed: () async {
-                  if (isEditing) {
-                    await _save();
-                  } else {
-                    _startEditing();
-                  }
-                },
+          SizedBox(
+            width: kToolbarHeight,
+            height: kToolbarHeight,
+            child: BarIconButton(
+              buttonIcon: Icon(
+                editMode ? Icons.check_rounded : Icons.edit_note_sharp,
               ),
+              onPressed: editMode ? _toggleViewMode : _toggleEditMode,
             ),
+          ),
         ],
       ),
-      body: isEditing
+      body: editMode
           ? _EditMode(
-              weeklyPlan: editedWeeklyPlan,
-              onWorkoutChanged: _changeDayWorkout,
+              weeklyPlan: weeklyPlan,
+              onWorkoutChanged: _onWorkoutChanged,
             )
-          : _ViewMode(weeklyPlan: currentWeeklyPlan),
+          : _ViewMode(weeklyPlan: weeklyPlan),
     );
-  }
-}
-
-WeeklyPlanUiModel _copyWeeklyPlanWithDayWorkout(
-  WeeklyPlanUiModel weeklyPlan,
-  String day,
-  WorkoutUiModel workout,
-) {
-  final week = weeklyPlan.week ?? WeekUiModel();
-
-  switch (day) {
-    case "Monday":
-      return weeklyPlan.copyWith(
-        week: week.copyWith(mondayWorkoutId: workout.id, mondayWorkout: workout),
-      );
-    case "Tuesday":
-      return weeklyPlan.copyWith(
-        week: week.copyWith(
-          tuesdayWorkoutId: workout.id,
-          tuesdayWorkout: workout,
-        ),
-      );
-    case "Wednesday":
-      return weeklyPlan.copyWith(
-        week: week.copyWith(
-          wednesdayWorkoutId: workout.id,
-          wednesdayWorkout: workout,
-        ),
-      );
-    case "Thursday":
-      return weeklyPlan.copyWith(
-        week: week.copyWith(
-          thursdayWorkoutId: workout.id,
-          thursdayWorkout: workout,
-        ),
-      );
-    case "Friday":
-      return weeklyPlan.copyWith(
-        week: week.copyWith(fridayWorkoutId: workout.id, fridayWorkout: workout),
-      );
-    case "Saturday":
-      return weeklyPlan.copyWith(
-        week: week.copyWith(
-          saturdayWorkoutId: workout.id,
-          saturdayWorkout: workout,
-        ),
-      );
-    case "Sunday":
-      return weeklyPlan.copyWith(
-        week: week.copyWith(sundayWorkoutId: workout.id, sundayWorkout: workout),
-      );
-    default:
-      return weeklyPlan;
   }
 }
 
@@ -178,18 +98,9 @@ class _ViewMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        Text(
-          textCase(weeklyPlan.name, TextCaseMode.title),
-          textAlign: TextAlign.center,
-          style: textStyleXL,
-        ),
-        WeekDayCard(day: "Monday", weeklyPlan: weeklyPlan),
-        WeekDayCard(day: "Tuesday", weeklyPlan: weeklyPlan),
-        WeekDayCard(day: "Wednesday", weeklyPlan: weeklyPlan),
-        WeekDayCard(day: "Thursday", weeklyPlan: weeklyPlan),
-        WeekDayCard(day: "Friday", weeklyPlan: weeklyPlan),
-        WeekDayCard(day: "Saturday", weeklyPlan: weeklyPlan),
-        WeekDayCard(day: "Sunday", weeklyPlan: weeklyPlan),
+        SizedBox(height: defaultHeight),
+        for (final day in _weekDays)
+          WeekDayCard(day: day, weeklyPlan: weeklyPlan),
       ],
     );
   }
@@ -206,47 +117,66 @@ class _EditMode extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        Text(
-          textCase(weeklyPlan.name, TextCaseMode.title),
-          textAlign: TextAlign.center,
-          style: textStyleXL,
-        ),
-        WeekDayCardEdit(
-          day: "Monday",
-          weeklyPlan: weeklyPlan,
-          onWorkoutChanged: onWorkoutChanged,
-        ),
-        WeekDayCardEdit(
-          day: "Tuesday",
-          weeklyPlan: weeklyPlan,
-          onWorkoutChanged: onWorkoutChanged,
-        ),
-        WeekDayCardEdit(
-          day: "Wednesday",
-          weeklyPlan: weeklyPlan,
-          onWorkoutChanged: onWorkoutChanged,
-        ),
-        WeekDayCardEdit(
-          day: "Thursday",
-          weeklyPlan: weeklyPlan,
-          onWorkoutChanged: onWorkoutChanged,
-        ),
-        WeekDayCardEdit(
-          day: "Friday",
-          weeklyPlan: weeklyPlan,
-          onWorkoutChanged: onWorkoutChanged,
-        ),
-        WeekDayCardEdit(
-          day: "Saturday",
-          weeklyPlan: weeklyPlan,
-          onWorkoutChanged: onWorkoutChanged,
-        ),
-        WeekDayCardEdit(
-          day: "Sunday",
-          weeklyPlan: weeklyPlan,
-          onWorkoutChanged: onWorkoutChanged,
-        ),
+        SizedBox(height: defaultHeight),
+        for (final day in _weekDays)
+          WeekDayCardEdit(
+            day: day,
+            weeklyPlan: weeklyPlan,
+            onWorkoutChanged: onWorkoutChanged,
+          ),
       ],
     );
   }
+}
+
+const List<String> _weekDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+WeeklyPlanUiModel _copyWeeklyPlanWithDayWorkout(
+  WeeklyPlanUiModel weeklyPlan,
+  WorkoutUiModel workout,
+  String day,
+) {
+  final week = weeklyPlan.week ?? WeekUiModel();
+
+  final updatedWeek = switch (day) {
+    "Monday" => week.copyWith(
+      mondayWorkoutId: workout.id,
+      mondayWorkout: workout,
+    ),
+    "Tuesday" => week.copyWith(
+      tuesdayWorkoutId: workout.id,
+      tuesdayWorkout: workout,
+    ),
+    "Wednesday" => week.copyWith(
+      wednesdayWorkoutId: workout.id,
+      wednesdayWorkout: workout,
+    ),
+    "Thursday" => week.copyWith(
+      thursdayWorkoutId: workout.id,
+      thursdayWorkout: workout,
+    ),
+    "Friday" => week.copyWith(
+      fridayWorkoutId: workout.id,
+      fridayWorkout: workout,
+    ),
+    "Saturday" => week.copyWith(
+      saturdayWorkoutId: workout.id,
+      saturdayWorkout: workout,
+    ),
+    "Sunday" => week.copyWith(
+      sundayWorkoutId: workout.id,
+      sundayWorkout: workout,
+    ),
+    _ => week,
+  };
+
+  return weeklyPlan.copyWith(week: updatedWeek);
 }

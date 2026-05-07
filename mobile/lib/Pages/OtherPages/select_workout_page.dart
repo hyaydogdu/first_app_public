@@ -1,3 +1,4 @@
+import 'package:first_app/Pages/OtherPages/workout_view_page.dart';
 import 'package:first_app/models/workout_ui_model.dart';
 import 'package:first_app/services/workout_api.dart';
 import 'package:flutter/material.dart';
@@ -17,18 +18,6 @@ class _SelectWorkoutPageState extends State<SelectWorkoutPage> {
   void initState() {
     super.initState();
     _future = WorkoutApi.getWorkouts();
-  }
-
-  Future<void> _selectWorkout(WorkoutUiModel workout) async {
-    try {
-      final selectedWorkout = await WorkoutApi.getWorkoutById(workout.id);
-      if (!mounted) return;
-      Navigator.pop(context, selectedWorkout);
-    } catch (e) {
-      debugPrint("Failed to load selected workout details: $e");
-      if (!mounted) return;
-      Navigator.pop(context, workout);
-    }
   }
 
   @override
@@ -53,10 +42,11 @@ class _SelectWorkoutPageState extends State<SelectWorkoutPage> {
           }
 
           final workouts = snapshot.data ?? [];
+
           return Column(
             children: [
               SizedBox(height: defaultHeight),
-              ViewWorkouts(workouts: workouts, onViewWorkout: _selectWorkout),
+              ViewWorkouts(workouts: workouts),
             ],
           );
         },
@@ -67,13 +57,8 @@ class _SelectWorkoutPageState extends State<SelectWorkoutPage> {
 
 class ViewWorkouts extends StatelessWidget {
   final List<WorkoutUiModel> workouts;
-  final ValueChanged<WorkoutUiModel> onViewWorkout;
 
-  const ViewWorkouts({
-    super.key,
-    required this.workouts,
-    required this.onViewWorkout,
-  });
+  const ViewWorkouts({super.key, required this.workouts});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +73,12 @@ class ViewWorkouts extends StatelessWidget {
                   final workout = workouts[index];
                   return SelectWorkoutCard(
                     workout: workout,
-                    onViewWorkout: () => onViewWorkout(workout),
+                    onViewWorkout: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WorkoutViewPage(workout: workout),
+                      ),
+                    ),
                   );
                 },
               ),
