@@ -50,7 +50,7 @@ class _ExerciseSelectionPageState extends State<ExerciseSelectionPage> {
                 boxColor: color_2,
                 softCorners: true,
                 edgeSpaceAllBig: true,
-                elevation: 4,
+                elevation: 2,
                 child: Column(
                   children: [
                     Box(

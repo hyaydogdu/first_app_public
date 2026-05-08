@@ -1,5 +1,7 @@
 import 'package:first_app/models/workout_ui_model.dart';
 
+const Object _notSet = Object();
+
 class WeekUiModel {
   final int? mondayWorkoutId;
   final WorkoutUiModel? mondayWorkout;
@@ -61,36 +63,64 @@ class WeekUiModel {
   }
 
   WeekUiModel copyWith({
-    int? mondayWorkoutId,
-    WorkoutUiModel? mondayWorkout,
-    int? tuesdayWorkoutId,
-    WorkoutUiModel? tuesdayWorkout,
-    int? wednesdayWorkoutId,
-    WorkoutUiModel? wednesdayWorkout,
-    int? thursdayWorkoutId,
-    WorkoutUiModel? thursdayWorkout,
-    int? fridayWorkoutId,
-    WorkoutUiModel? fridayWorkout,
-    int? saturdayWorkoutId,
-    WorkoutUiModel? saturdayWorkout,
-    int? sundayWorkoutId,
-    WorkoutUiModel? sundayWorkout,
+    Object? mondayWorkoutId = _notSet,
+    Object? mondayWorkout = _notSet,
+    Object? tuesdayWorkoutId = _notSet,
+    Object? tuesdayWorkout = _notSet,
+    Object? wednesdayWorkoutId = _notSet,
+    Object? wednesdayWorkout = _notSet,
+    Object? thursdayWorkoutId = _notSet,
+    Object? thursdayWorkout = _notSet,
+    Object? fridayWorkoutId = _notSet,
+    Object? fridayWorkout = _notSet,
+    Object? saturdayWorkoutId = _notSet,
+    Object? saturdayWorkout = _notSet,
+    Object? sundayWorkoutId = _notSet,
+    Object? sundayWorkout = _notSet,
   }) {
     return WeekUiModel(
-      mondayWorkoutId: mondayWorkoutId ?? this.mondayWorkoutId,
-      mondayWorkout: mondayWorkout ?? this.mondayWorkout,
-      tuesdayWorkoutId: tuesdayWorkoutId ?? this.tuesdayWorkoutId,
-      tuesdayWorkout: tuesdayWorkout ?? this.tuesdayWorkout,
-      wednesdayWorkoutId: wednesdayWorkoutId ?? this.wednesdayWorkoutId,
-      wednesdayWorkout: wednesdayWorkout ?? this.wednesdayWorkout,
-      thursdayWorkoutId: thursdayWorkoutId ?? this.thursdayWorkoutId,
-      thursdayWorkout: thursdayWorkout ?? this.thursdayWorkout,
-      fridayWorkoutId: fridayWorkoutId ?? this.fridayWorkoutId,
-      fridayWorkout: fridayWorkout ?? this.fridayWorkout,
-      saturdayWorkoutId: saturdayWorkoutId ?? this.saturdayWorkoutId,
-      saturdayWorkout: saturdayWorkout ?? this.saturdayWorkout,
-      sundayWorkoutId: sundayWorkoutId ?? this.sundayWorkoutId,
-      sundayWorkout: sundayWorkout ?? this.sundayWorkout,
+      mondayWorkoutId: mondayWorkoutId == _notSet
+          ? this.mondayWorkoutId
+          : mondayWorkoutId as int?,
+      mondayWorkout: mondayWorkout == _notSet
+          ? this.mondayWorkout
+          : mondayWorkout as WorkoutUiModel?,
+      tuesdayWorkoutId: tuesdayWorkoutId == _notSet
+          ? this.tuesdayWorkoutId
+          : tuesdayWorkoutId as int?,
+      tuesdayWorkout: tuesdayWorkout == _notSet
+          ? this.tuesdayWorkout
+          : tuesdayWorkout as WorkoutUiModel?,
+      wednesdayWorkoutId: wednesdayWorkoutId == _notSet
+          ? this.wednesdayWorkoutId
+          : wednesdayWorkoutId as int?,
+      wednesdayWorkout: wednesdayWorkout == _notSet
+          ? this.wednesdayWorkout
+          : wednesdayWorkout as WorkoutUiModel?,
+      thursdayWorkoutId: thursdayWorkoutId == _notSet
+          ? this.thursdayWorkoutId
+          : thursdayWorkoutId as int?,
+      thursdayWorkout: thursdayWorkout == _notSet
+          ? this.thursdayWorkout
+          : thursdayWorkout as WorkoutUiModel?,
+      fridayWorkoutId: fridayWorkoutId == _notSet
+          ? this.fridayWorkoutId
+          : fridayWorkoutId as int?,
+      fridayWorkout: fridayWorkout == _notSet
+          ? this.fridayWorkout
+          : fridayWorkout as WorkoutUiModel?,
+      saturdayWorkoutId: saturdayWorkoutId == _notSet
+          ? this.saturdayWorkoutId
+          : saturdayWorkoutId as int?,
+      saturdayWorkout: saturdayWorkout == _notSet
+          ? this.saturdayWorkout
+          : saturdayWorkout as WorkoutUiModel?,
+      sundayWorkoutId: sundayWorkoutId == _notSet
+          ? this.sundayWorkoutId
+          : sundayWorkoutId as int?,
+      sundayWorkout: sundayWorkout == _notSet
+          ? this.sundayWorkout
+          : sundayWorkout as WorkoutUiModel?,
     );
   }
 

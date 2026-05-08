@@ -1,8 +1,9 @@
-import 'package:first_app/Pages/OtherPages/workout_view_page.dart';
 import 'package:first_app/models/workout_ui_model.dart';
 import 'package:first_app/services/workout_api.dart';
 import 'package:flutter/material.dart';
 import '../../Items/Barrel/item_barrel.dart';
+
+enum SelectWorkoutResult { restDay }
 
 class SelectWorkoutPage extends StatefulWidget {
   const SelectWorkoutPage({super.key});
@@ -68,20 +69,47 @@ class ViewWorkouts extends StatelessWidget {
         child: workouts.isEmpty
             ? const Center(child: Text("Workout yok"))
             : ListView.builder(
-                itemCount: workouts.length,
+                itemCount: workouts.length + 1,
                 itemBuilder: (context, index) {
-                  final workout = workouts[index];
+                  if (index == 0) {
+                    return _RestCard();
+                  }
+                  final workout = workouts[index - 1];
                   return SelectWorkoutCard(
                     workout: workout,
-                    onViewWorkout: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => WorkoutViewPage(workout: workout),
-                      ),
-                    ),
+                    onViewWorkout: () => Navigator.pop(context, workout),
                   );
                 },
               ),
+      ),
+    );
+  }
+}
+
+class _RestCard extends StatelessWidget {
+  const _RestCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => Navigator.pop(context, SelectWorkoutResult.restDay),
+      child: BorderBox(
+        boxColor: accentColor,
+        softCorners: true,
+        edgeSpaceAllBig: true,
+        elevation: 4,
+        child: maxWidth(
+          child: cardPart(
+            height: defaultHeight * 6,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Rest Day", style: textStyleM),
+                Text("Enjoy Your Day", style: textStyleSGrey),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

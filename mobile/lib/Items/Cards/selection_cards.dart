@@ -26,7 +26,7 @@ class SelectExerciseCard extends StatelessWidget {
         softCorners: true,
         edgeSpaceAllSmall: true,
         edgeSpaceHorizontal: true,
-        elevation: 4,
+        elevation: 2,
         child: Row(
           children: [
             Expanded(

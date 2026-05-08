@@ -113,8 +113,7 @@ class PlanCard extends StatelessWidget {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) =>
-                          WeeklyPlanViewPage(weeklyPlan: weeklyPlan),
+                      builder: (_) => WeeklyPlanPage(weeklyPlan: weeklyPlan),
                     ),
                   );
                   onCardClosed();

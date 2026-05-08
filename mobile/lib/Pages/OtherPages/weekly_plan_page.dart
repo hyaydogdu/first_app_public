@@ -5,18 +5,18 @@ import 'package:first_app/models/weekly_plan_ui_model.dart';
 import 'package:first_app/models/workout_ui_model.dart';
 import 'package:flutter/material.dart';
 
-class WeeklyPlanViewPage extends DefaultPage {
+class WeeklyPlanPage extends DefaultPage {
   final WeeklyPlanUiModel weeklyPlan;
-  const WeeklyPlanViewPage({super.key, required this.weeklyPlan});
+  const WeeklyPlanPage({super.key, required this.weeklyPlan});
 
   @override
   String get pageName => "Weekly Plan View";
 
   @override
-  State<WeeklyPlanViewPage> createState() => _WeeklyplanViewPageState();
+  State<WeeklyPlanPage> createState() => _WeeklyplanViewPageState();
 }
 
-class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
+class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
   bool editMode = false;
   late WeeklyPlanUiModel weeklyPlan;
 
@@ -26,7 +26,7 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanViewPage> {
     weeklyPlan = widget.weeklyPlan;
   }
 
-  Future<void> _onWorkoutChanged(String day, WorkoutUiModel workout) async {
+  Future<void> _onWorkoutChanged(String day, WorkoutUiModel? workout) async {
     setState(() {
       weeklyPlan = _copyWeeklyPlanWithDayWorkout(weeklyPlan, workout, day);
     });
@@ -108,7 +108,7 @@ class _ViewMode extends StatelessWidget {
 
 class _EditMode extends StatelessWidget {
   final WeeklyPlanUiModel weeklyPlan;
-  final Future<void> Function(String day, WorkoutUiModel workout)
+  final Future<void> Function(String day, WorkoutUiModel? workout)
   onWorkoutChanged;
 
   const _EditMode({required this.weeklyPlan, required this.onWorkoutChanged});
@@ -141,40 +141,47 @@ const List<String> _weekDays = [
 
 WeeklyPlanUiModel _copyWeeklyPlanWithDayWorkout(
   WeeklyPlanUiModel weeklyPlan,
-  WorkoutUiModel workout,
+  WorkoutUiModel? workout,
   String day,
 ) {
   final week = weeklyPlan.week ?? WeekUiModel();
 
   final updatedWeek = switch (day) {
     "Monday" => week.copyWith(
-      mondayWorkoutId: workout.id,
+      mondayWorkoutId: workout?.id,
       mondayWorkout: workout,
     ),
+
     "Tuesday" => week.copyWith(
-      tuesdayWorkoutId: workout.id,
+      tuesdayWorkoutId: workout?.id,
       tuesdayWorkout: workout,
     ),
+
     "Wednesday" => week.copyWith(
-      wednesdayWorkoutId: workout.id,
+      wednesdayWorkoutId: workout?.id,
       wednesdayWorkout: workout,
     ),
+
     "Thursday" => week.copyWith(
-      thursdayWorkoutId: workout.id,
+      thursdayWorkoutId: workout?.id,
       thursdayWorkout: workout,
     ),
+
     "Friday" => week.copyWith(
-      fridayWorkoutId: workout.id,
+      fridayWorkoutId: workout?.id,
       fridayWorkout: workout,
     ),
+
     "Saturday" => week.copyWith(
-      saturdayWorkoutId: workout.id,
+      saturdayWorkoutId: workout?.id,
       saturdayWorkout: workout,
     ),
+
     "Sunday" => week.copyWith(
-      sundayWorkoutId: workout.id,
+      sundayWorkoutId: workout?.id,
       sundayWorkout: workout,
     ),
+
     _ => week,
   };
 
