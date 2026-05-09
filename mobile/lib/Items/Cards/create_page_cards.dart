@@ -1,5 +1,4 @@
 import 'package:first_app/Pages/Barrel/page_barrel.dart';
-import 'package:first_app/Pages/OtherPages/workout_view_page.dart';
 import 'package:first_app/Services/weekly_plan_api.dart';
 import 'package:first_app/Services/workout_api.dart';
 import 'package:flutter/material.dart';
