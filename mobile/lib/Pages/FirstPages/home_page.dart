@@ -62,11 +62,19 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: color_1,
-      appBar: AppBar(backgroundColor: color_1, elevation: 0),
+      appBar: AppBar(
+        backgroundColor: color_1,
+        title: Text("Home Page", style: textStyleM),
+        centerTitle: true,
+        elevation: 0,
+      ),
       body: ListView(
         children: [
           Container(
-            padding: const EdgeInsets.only(left: defaultHeight),
+            padding: const EdgeInsets.only(
+              left: defaultHeight,
+              top: defaultHeight,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

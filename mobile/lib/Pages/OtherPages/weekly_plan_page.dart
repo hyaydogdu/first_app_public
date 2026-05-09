@@ -53,6 +53,44 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
     }
   }
 
+  void _deleteWeeklyPlan() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Delete Weekly Plan"),
+        content: Text("Are you sure you want to delete this weekly plan?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (confirm != true) return;
+
+    try {
+      await WeeklyPlanApi.deleteWeeklyPlan(widget.weeklyPlan.id);
+
+      if (!mounted) return;
+
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Delete failed")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,6 +114,14 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
                 editMode ? Icons.check_rounded : Icons.edit_note_sharp,
               ),
               onPressed: editMode ? _toggleViewMode : _toggleEditMode,
+            ),
+          ),
+          SizedBox(
+            width: kToolbarHeight,
+            height: kToolbarHeight,
+            child: BarIconButton(
+              buttonIcon: Icon(Icons.delete_rounded),
+              onPressed: _deleteWeeklyPlan,
             ),
           ),
         ],

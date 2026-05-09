@@ -31,8 +31,8 @@ namespace FirstApp.Api.Controllers
                 s => s.RestSeconds
             );
 
-            if (validation != null)
-                return validation;
+            // if (validation != null)
+            //     return validation;
 
             var workout = new Workout
             {
@@ -270,25 +270,24 @@ namespace FirstApp.Api.Controllers
     Func<TSet, int> getReps,
     Func<TSet, int> getRestSeconds)
         {
-            if (!exercises.Any())
-                return BadRequest("Workout must have at least one exercise.");
 
-            foreach (var exercise in exercises)
-            {
-                var sets = getSets(exercise).ToList();
+            if (exercises.Any())
+                foreach (var exercise in exercises)
+                {
+                    var sets = getSets(exercise).ToList();
 
-                if (!sets.Any())
-                    return BadRequest("Each exercise must have at least one set.");
+                    if (!sets.Any())
+                        return BadRequest("Each exercise must have at least one set.");
 
-                if (sets.Any(s => getRestSeconds(s) < 0))
-                    return BadRequest("Rest must be 0 or greater.");
+                    if (sets.Any(s => getRestSeconds(s) < 0))
+                        return BadRequest("Rest must be 0 or greater.");
 
-                if (sets.Any(s => getReps(s) < 0))
-                    return BadRequest("Reps must be 0 or greater.");
+                    if (sets.Any(s => getReps(s) < 0))
+                        return BadRequest("Reps must be 0 or greater.");
 
-                if (sets.Select(getSetIndex).Distinct().Count() != sets.Count)
-                    return BadRequest("SetIndex values must be unique.");
-            }
+                    if (sets.Select(getSetIndex).Distinct().Count() != sets.Count)
+                        return BadRequest("SetIndex values must be unique.");
+                }
 
             return null;
         }

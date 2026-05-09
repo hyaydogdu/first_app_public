@@ -19,12 +19,14 @@ class _LibraryPageState extends State<LibraryPage> {
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: color_1,
-        appBar: AppBar(backgroundColor: color_1, elevation: 0),
+        appBar: AppBar(
+          backgroundColor: color_1,
+          title: Text("Library Page", style: textStyleM),
+          centerTitle: true,
+          elevation: 0,
+        ),
         body: Column(
-          children: [
-            CreateCard(text: "Library"),
-            SizedBox(height: 50),
-          ],
+          children: [Center(child: Text("Your Library", style: textStyleL))],
         ),
       ),
     );

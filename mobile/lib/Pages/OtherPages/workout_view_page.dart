@@ -133,6 +133,44 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
     });
   }
 
+  void _deleteWorkout() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Confirm Deletion"),
+        content: const Text("Are you sure you want to delete this workout?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+
+    if (confirm != true) return;
+
+    try {
+      await WorkoutApi.deleteWorkout(widget.workout.id);
+
+      if (!mounted) return;
+
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Delete failed")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,6 +200,16 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
                 },
               ),
             ),
+          SizedBox(
+            width: kToolbarHeight,
+            height: kToolbarHeight,
+            child: BarIconButton(
+              buttonIcon: Icon(Icons.delete_rounded),
+              onPressed: () async {
+                _deleteWorkout();
+              },
+            ),
+          ),
         ],
       ),
       body: isEditing

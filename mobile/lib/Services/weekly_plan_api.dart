@@ -53,6 +53,33 @@ class WeeklyPlanApi {
     );
   }
 
+  static Future<WeeklyPlanUiModel> createWeeklyPlan({
+    required String name,
+    String? description,
+  }) async {
+    final res = await http.post(
+      Uri.parse(baseUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"name": name, "description": description}),
+    );
+
+    debugPrint("POST /weeklyplans status: ${res.statusCode}");
+    debugPrint("RESPONSE BODY:");
+    debugPrint(res.body);
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception("Failed: ${res.statusCode}");
+    }
+
+    final decoded = jsonDecode(res.body);
+
+    if (decoded is! Map<String, dynamic>) {
+      throw Exception("Invalid response format");
+    }
+
+    return WeeklyPlanUiModel.fromJson(decoded);
+  }
+
   static Future<void> assignWorkoutToDay({
     required int weeklyPlanId,
     required String day,
@@ -93,6 +120,16 @@ class WeeklyPlanApi {
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
       throw Exception("Failed: ${res.statusCode}");
+    }
+  }
+
+  static Future<void> deleteWeeklyPlan(int id) async {
+    final res = await http.delete(Uri.parse("$baseUrl/$id"));
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      debugPrint("DELETE /weeklyplans/$id failed: ${res.statusCode}");
+      debugPrint(res.body);
+      throw Exception("Delete weekly plan failed: ${res.statusCode}");
     }
   }
 }

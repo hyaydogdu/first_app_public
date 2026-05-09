@@ -48,6 +48,39 @@ class WorkoutApi {
     return WorkoutUiModel.fromJson(decoded);
   }
 
+  // POST - yeni workout olustur
+  static Future<WorkoutUiModel> createWorkout({
+    required String name,
+    String? description,
+    required List<WorkoutExerciseUiModel> exercises,
+  }) async {
+    final res = await http.post(
+      Uri.parse(baseUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "name": name,
+        "description": description,
+        "workoutExercises": exercises.map((e) => e.toJson()).toList(),
+      }),
+    );
+
+    debugPrint("POST /workout status: ${res.statusCode}");
+    debugPrint("RESPONSE BODY:");
+    debugPrint(res.body);
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception("Create workout failed: ${res.statusCode}");
+    }
+
+    final decoded = jsonDecode(res.body);
+
+    if (decoded is! Map<String, dynamic>) {
+      throw Exception("Invalid response format");
+    }
+
+    return WorkoutUiModel.fromJson(decoded);
+  }
+
   // --------------------------------------
   // 1️⃣ UPDATE WORKOUT HEADER
   // --------------------------------------
