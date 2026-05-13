@@ -18,7 +18,10 @@ class HomePage extends DefaultPage {
 class _HomePageState extends State<HomePage> {
   List<WorkoutUiModel> workouts = [];
   List<WeeklyPlanUiModel> weeklyPlans = [];
-  bool loading = true;
+  bool loadingWorkouts = true;
+  bool loadingWeeklyPlans = true;
+
+  bool get loading => loadingWorkouts || loadingWeeklyPlans;
 
   @override
   void initState() {
@@ -28,22 +31,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadWorkouts() async {
+    setState(() => loadingWorkouts = true);
+
     try {
       final data = await WorkoutApi.getWorkouts();
+      if (!mounted) return;
+
       setState(() {
         workouts = data;
-        loading = false;
+        loadingWorkouts = false;
       });
     } catch (e) {
-      setState(() => loading = false);
+      if (!mounted) return;
+
+      setState(() => loadingWorkouts = false);
       // şimdilik debug
       debugPrint("API error: $e");
     }
   }
 
   Future<void> _loadWeeklyPlans() async {
+    setState(() => loadingWeeklyPlans = true);
+
     try {
       final plans = await WeeklyPlanApi.getWeeklyPlans();
+      if (!mounted) return;
 
       for (var p in plans) {
         debugPrint("ID: ${p.id}");
@@ -52,8 +64,12 @@ class _HomePageState extends State<HomePage> {
 
       setState(() {
         weeklyPlans = plans;
+        loadingWeeklyPlans = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
+      setState(() => loadingWeeklyPlans = false);
       debugPrint("WeeklyPlan API error: $e");
     }
   }
@@ -99,11 +115,13 @@ class _HomePageState extends State<HomePage> {
           ),
           StatCard(text: "6h training time"),
 
-          if (loading)
+          if (loadingWorkouts)
             const Padding(
               padding: EdgeInsets.all(12),
               child: Center(child: CircularProgressIndicator()),
             )
+          else if (workouts.isEmpty)
+            StatCard(text: "No workouts yet")
           else
             TodayWorkoutCard(
               workout: workouts.first,

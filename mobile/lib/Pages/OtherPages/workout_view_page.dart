@@ -183,7 +183,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
           child: BarIconButton(onPressed: () => Navigator.pop(context)),
         ),
         actions: [
-          if (!currentWorkout.isDefault)
+          if (!currentWorkout.isDefault) ...[
             SizedBox(
               width: kToolbarHeight,
               height: kToolbarHeight,
@@ -200,16 +200,17 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
                 },
               ),
             ),
-          SizedBox(
-            width: kToolbarHeight,
-            height: kToolbarHeight,
-            child: BarIconButton(
-              buttonIcon: Icon(Icons.delete_rounded),
-              onPressed: () async {
-                _deleteWorkout();
-              },
+            SizedBox(
+              width: kToolbarHeight,
+              height: kToolbarHeight,
+              child: BarIconButton(
+                buttonIcon: Icon(Icons.delete_rounded),
+                onPressed: () async {
+                  _deleteWorkout();
+                },
+              ),
             ),
-          ),
+          ],
         ],
       ),
       body: isEditing

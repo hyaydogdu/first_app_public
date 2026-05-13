@@ -105,25 +105,28 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
             Navigator.pop(context);
           },
         ),
+
         actions: [
-          SizedBox(
-            width: kToolbarHeight,
-            height: kToolbarHeight,
-            child: BarIconButton(
-              buttonIcon: Icon(
-                editMode ? Icons.check_rounded : Icons.edit_note_sharp,
+          if (!widget.weeklyPlan.isDefault) ...[
+            SizedBox(
+              width: kToolbarHeight,
+              height: kToolbarHeight,
+              child: BarIconButton(
+                buttonIcon: Icon(
+                  editMode ? Icons.check_rounded : Icons.edit_note_sharp,
+                ),
+                onPressed: editMode ? _toggleViewMode : _toggleEditMode,
               ),
-              onPressed: editMode ? _toggleViewMode : _toggleEditMode,
             ),
-          ),
-          SizedBox(
-            width: kToolbarHeight,
-            height: kToolbarHeight,
-            child: BarIconButton(
-              buttonIcon: Icon(Icons.delete_rounded),
-              onPressed: _deleteWeeklyPlan,
+            SizedBox(
+              width: kToolbarHeight,
+              height: kToolbarHeight,
+              child: BarIconButton(
+                buttonIcon: Icon(Icons.delete_rounded),
+                onPressed: _deleteWeeklyPlan,
+              ),
             ),
-          ),
+          ],
         ],
       ),
       body: editMode
