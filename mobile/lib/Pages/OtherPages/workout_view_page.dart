@@ -144,7 +144,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text("Delete"),
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
