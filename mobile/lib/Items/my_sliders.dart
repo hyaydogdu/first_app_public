@@ -9,8 +9,11 @@ Widget workoutSlider({
   required List<WorkoutUiModel> workouts,
   required VoidCallback onCardClosed,
 }) {
-  final defaultWorkouts = workouts.where((w) => w.isDefault == true).toList();
-  final userWorkouts = workouts.where((w) => w.isDefault == false).toList();
+  final defaultWorkouts = workouts.where((w) => w.isDefault == true).toList()
+    ..sort(_sortWorkoutsNewestFirst);
+  final userWorkouts = workouts.where((w) => w.isDefault == false).toList()
+    ..sort(_sortWorkoutsNewestFirst);
+  final sliderWorkouts = isDefault ? defaultWorkouts : userWorkouts;
 
   return Box(
     boxColor: color_2,
@@ -34,15 +37,14 @@ Widget workoutSlider({
             child: ListView.separated(
               padding: const EdgeInsets.all(defaultHeight),
               scrollDirection: Axis.horizontal,
-              itemCount: isDefault
-                  ? defaultWorkouts.length
-                  : userWorkouts.length,
+              itemCount: sliderWorkouts.length,
               separatorBuilder: (_, _) => const SizedBox(width: defaultHeight),
               itemBuilder: (context, i) {
                 return SizedBox(
+                  key: ValueKey(sliderWorkouts[i].id),
                   width: 220, // kart genişliği sabit -> slider hissi
                   child: WorkoutCard(
-                    workout: isDefault ? defaultWorkouts[i] : userWorkouts[i],
+                    workout: sliderWorkouts[i],
                     onCardClosed: onCardClosed,
                   ),
                 );
@@ -63,8 +65,11 @@ Widget planSlider({
   required List<WeeklyPlanUiModel> plans,
   required VoidCallback onCardClosed,
 }) {
-  final defaultPlans = plans.where((p) => p.isDefault == true).toList();
-  final userPlans = plans.where((p) => p.isDefault == false).toList();
+  final defaultPlans = plans.where((p) => p.isDefault == true).toList()
+    ..sort(_sortPlansNewestFirst);
+  final userPlans = plans.where((p) => p.isDefault == false).toList()
+    ..sort(_sortPlansNewestFirst);
+  final sliderPlans = isDefault ? defaultPlans : userPlans;
 
   return Box(
     boxColor: color_2,
@@ -88,13 +93,14 @@ Widget planSlider({
             child: ListView.separated(
               padding: const EdgeInsets.all(defaultHeight),
               scrollDirection: Axis.horizontal,
-              itemCount: isDefault ? defaultPlans.length : userPlans.length,
+              itemCount: sliderPlans.length,
               separatorBuilder: (_, _) => const SizedBox(width: defaultHeight),
               itemBuilder: (context, i) {
                 return SizedBox(
+                  key: ValueKey(sliderPlans[i].id),
                   width: 220, // kart genişliği sabit -> slider hissi
                   child: PlanCard(
-                    weeklyPlan: isDefault ? defaultPlans[i] : userPlans[i],
+                    weeklyPlan: sliderPlans[i],
                     onCardClosed: onCardClosed,
                   ),
                 );
@@ -107,4 +113,18 @@ Widget planSlider({
       ),
     ),
   );
+}
+
+int _sortWorkoutsNewestFirst(WorkoutUiModel a, WorkoutUiModel b) {
+  final dateCompare = b.createdAt.compareTo(a.createdAt);
+  if (dateCompare != 0) return dateCompare;
+
+  return b.id.compareTo(a.id);
+}
+
+int _sortPlansNewestFirst(WeeklyPlanUiModel a, WeeklyPlanUiModel b) {
+  final dateCompare = b.createdAt.compareTo(a.createdAt);
+  if (dateCompare != 0) return dateCompare;
+
+  return b.id.compareTo(a.id);
 }

@@ -7,6 +7,7 @@ public class WorkoutResponse
     public string? Description { get; set; }
 
     public bool isDefault { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public List<WorkoutExerciseResponse> WorkoutExercises { get; set; } = new();
 }

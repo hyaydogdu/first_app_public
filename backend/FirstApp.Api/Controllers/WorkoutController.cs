@@ -22,36 +22,11 @@ namespace FirstApp.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateWorkoutRequest request)
         {
 
-            // 🔧 VALIDATION
-            var validation = ValidateWorkoutExercises(
-                request.WorkoutExercises,
-                we => we.Sets,
-                s => s.SetIndex,
-                s => s.Reps,
-                s => s.RestSeconds
-            );
-
-            // if (validation != null)
-            //     return validation;
-
             var workout = new Workout
             {
                 Name = request.Name,
                 Description = request.Description,
-                CreatedAt = DateTime.UtcNow,
-                WorkoutExercises = request.WorkoutExercises.Select(we =>
-                    new WorkoutExercise
-                    {
-                        ExerciseId = we.ExerciseId,
-                        OrderIndex = we.OrderIndex,
-                        Sets = we.Sets.Select(s => new WorkoutSet
-                        {
-                            SetIndex = s.SetIndex,
-                            WeightKg = s.WeightKg,
-                            Reps = s.Reps,
-                            RestSeconds = s.RestSeconds
-                        }).ToList()
-                    }).ToList()
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Workouts.Add(workout);
@@ -240,6 +215,7 @@ namespace FirstApp.Api.Controllers
                 Name = workout.Name,
                 Description = workout.Description,
                 isDefault = workout.isDefault,
+                CreatedAt = workout.CreatedAt,
                 WorkoutExercises = workout.WorkoutExercises
                     .OrderBy(we => we.OrderIndex)
                     .Select(we => new WorkoutExerciseResponse

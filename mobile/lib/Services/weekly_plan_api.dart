@@ -44,6 +44,10 @@ class WeeklyPlanApi {
   static Future<WeeklyPlanUiModel> getWeeklyPlanById(int id) async {
     final res = await http.get(Uri.parse("$baseUrl/$id"));
 
+    debugPrint("GET /weeklyplans/$id status: ${res.statusCode}");
+    debugPrint("RESPONSE BODY:");
+    debugPrint(res.body);
+
     if (res.statusCode != 200) {
       throw Exception("Failed: ${res.statusCode}");
     }

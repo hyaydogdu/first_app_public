@@ -1,7 +1,8 @@
+import 'package:first_app/items/fonts_colors.dart';
 import 'package:flutter/material.dart';
 
 class BorderBox extends StatelessWidget {
-  final Color boxColor;
+  final Color? boxColor;
   final Color? strokeColor;
   final Color? shadowColor;
   final Widget child;
@@ -15,7 +16,7 @@ class BorderBox extends StatelessWidget {
 
   const BorderBox({
     super.key,
-    required this.boxColor,
+    this.boxColor,
     this.strokeColor,
     this.shadowColor,
     required this.child,
@@ -47,7 +48,7 @@ class BorderBox extends StatelessWidget {
       ), // kutular arası boşluk
 
       child: Material(
-        color: boxColor,
+        color: boxColor ?? color_1,
         shadowColor: shadowColor ?? Colors.black,
         elevation: elevation ?? 0,
         shape: RoundedRectangleBorder(

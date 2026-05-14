@@ -1,3 +1,4 @@
+// import 'package:first_app/Pages/Barrel/page_barrel.dart';
 import 'package:first_app/Pages/Barrel/page_barrel.dart';
 import 'package:first_app/Services/weekly_plan_api.dart';
 import 'package:first_app/Services/workout_api.dart';
@@ -39,42 +40,51 @@ class CreateCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(questionText, style: textStyleM, textAlign: TextAlign.start),
-            const SizedBox(height: defaultHeight / 2),
+            SizedBox(height: defaultHeight / 2),
+
             if (subtitle != null) ...[
               Text(subtitle!, style: textStyleS, textAlign: TextAlign.start),
-              const SizedBox(height: defaultHeight / 2),
+              SizedBox(height: defaultHeight / 2),
             ],
             maxWidth(
               child: MyTextButton(
                 text: buttonText,
                 onPressed: () async {
-                  final result = await _create(type, context);
+                  // final result =
+                  try {
+                    final result = await _create(type, context);
+                    if (!context.mounted || result == null) return;
 
-                  if (!context.mounted || result == null) return;
+                    switch (type) {
+                      case CreateType.workout:
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                WorkoutViewPage(workout: result),
+                          ),
+                        );
+                        break;
 
-                  switch (type) {
-                    case CreateType.workout:
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              WorkoutViewPage(workout: result),
-                        ),
-                      );
-                      break;
+                      case CreateType.weeklyPlan:
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                WeeklyPlanPage(weeklyPlan: result),
+                          ),
+                        );
+                        break;
+                      case CreateType.workoutCollection:
+                        // No action for now
+                        break;
+                    }
+                  } catch (error) {
+                    if (!context.mounted) return;
 
-                    case CreateType.weeklyPlan:
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              WeeklyPlanPage(weeklyPlan: result),
-                        ),
-                      );
-                      break;
-                    case CreateType.workoutCollection:
-                      // No action for now
-                      break;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Create failed: $error")),
+                    );
                   }
                 },
               ),
@@ -87,40 +97,10 @@ class CreateCard extends StatelessWidget {
 }
 
 Future<dynamic> _create(CreateType type, BuildContext context) async {
-  final controller = TextEditingController();
-
   final name = await showDialog<String>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: Text(_getCreateTitle(type)),
-      content: TextField(
-        controller: controller,
-        autofocus: true,
-        decoration: const InputDecoration(
-          labelText: "Name",
-          hintText: "Enter name",
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext),
-          child: const Text("Cancel"),
-        ),
-        TextButton(
-          onPressed: () {
-            final value = controller.text.trim();
-            // final value = controller.text.trim();
-
-            if (value.isEmpty) return;
-
-            Navigator.pop(dialogContext, textCase(value, TextCaseMode.upper));
-          },
-          child: const Text("Create"),
-        ),
-      ],
-    ),
+    builder: (dialogContext) => _CreateNameDialog(title: _getCreateTitle(type)),
   );
-  controller.dispose();
 
   if (name == null || name.isEmpty) return null;
 
@@ -131,10 +111,7 @@ Future<dynamic> _create(CreateType type, BuildContext context) async {
         name,
         workouts.map((workout) => workout.name),
       );
-      final workout = await WorkoutApi.createWorkout(
-        name: availableName,
-        exercises: [],
-      );
+      final workout = await WorkoutApi.createWorkout(name: availableName);
       return workout;
 
     case CreateType.weeklyPlan:
@@ -151,6 +128,57 @@ Future<dynamic> _create(CreateType type, BuildContext context) async {
 
     case CreateType.workoutCollection:
       return null;
+  }
+}
+
+class _CreateNameDialog extends StatefulWidget {
+  final String title;
+
+  const _CreateNameDialog({required this.title});
+
+  @override
+  State<_CreateNameDialog> createState() => _CreateNameDialogState();
+}
+
+class _CreateNameDialogState extends State<_CreateNameDialog> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final value = _controller.text.trim();
+
+    if (value.isEmpty) return;
+
+    Navigator.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => _submit(),
+        decoration: const InputDecoration(
+          labelText: "Name",
+          hintText: "Enter name",
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
+        TextButton(onPressed: _submit, child: const Text("Create")),
+      ],
+    );
   }
 }
 

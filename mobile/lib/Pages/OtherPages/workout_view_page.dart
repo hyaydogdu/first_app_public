@@ -106,11 +106,9 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
       if (!mounted) return;
 
       setState(() {
-        currentWorkout = WorkoutUiModel(
-          id: workoutToSave.id,
+        currentWorkout = workoutToSave.copyWith(
           name: newName,
           description: newDesc.isEmpty ? null : newDesc,
-          isDefault: workoutToSave.isDefault,
           workoutExercises: workoutToSave.workoutExercises,
         );
         editingWorkout = null;
@@ -120,7 +118,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
       debugPrint("❌ SAVE FAILED: $e");
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Save failed")));
+      ).showSnackBar(SnackBar(content: Text("Save failed: $e")));
     }
   }
 
@@ -179,6 +177,8 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
         automaticallyImplyLeading: false,
         backgroundColor: color_1,
         elevation: 0,
+        title: Text("WORKOUT", style: textStyleM),
+        centerTitle: true,
         leading: Center(
           child: BarIconButton(onPressed: () => Navigator.pop(context)),
         ),

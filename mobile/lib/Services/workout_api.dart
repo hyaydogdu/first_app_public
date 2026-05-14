@@ -52,16 +52,11 @@ class WorkoutApi {
   static Future<WorkoutUiModel> createWorkout({
     required String name,
     String? description,
-    required List<WorkoutExerciseUiModel> exercises,
   }) async {
     final res = await http.post(
       Uri.parse(baseUrl),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "name": name,
-        "description": description,
-        "workoutExercises": exercises.map((e) => e.toJson()).toList(),
-      }),
+      body: jsonEncode({"name": name, "description": description}),
     );
 
     debugPrint("POST /workout status: ${res.statusCode}");
@@ -98,7 +93,9 @@ class WorkoutApi {
     );
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      throw Exception("Update workout header failed");
+      debugPrint("UPDATE workout header failed: ${res.statusCode}");
+      debugPrint(res.body);
+      throw Exception("Update workout header failed: ${res.statusCode}");
     }
   }
 
@@ -120,7 +117,9 @@ class WorkoutApi {
     );
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      throw Exception("Update workout exercises failed");
+      debugPrint("UPDATE workout exercises failed: ${res.statusCode}");
+      debugPrint(res.body);
+      throw Exception("Update workout exercises failed: ${res.statusCode}");
     }
   }
 

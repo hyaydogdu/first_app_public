@@ -17,6 +17,24 @@ public class WeeklyPlansController : ControllerBase
         _context = context;
     }
 
+    // CREATE
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CreateWeeklyPlanRequest request)
+    {
+        var plan = new WeeklyPlan
+        {
+            Name = request.Name,
+            Description = request.Description,
+            CreatedAt = DateTime.UtcNow,
+            Week = new Week(),
+        };
+
+        _context.WeeklyPlans.Add(plan);
+        await _context.SaveChangesAsync();
+
+        return Ok(ToResponse(plan));
+    }
+
     // GET ALL
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -37,24 +55,6 @@ public class WeeklyPlansController : ControllerBase
 
         if (plan == null)
             return NotFound();
-
-        return Ok(ToResponse(plan));
-    }
-
-    // CREATE
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateWeeklyPlanRequest request)
-    {
-        var plan = new WeeklyPlan
-        {
-            Name = request.Name,
-            Description = request.Description,
-            CreatedAt = DateTime.UtcNow,
-            Week = new Week(),
-        };
-
-        _context.WeeklyPlans.Add(plan);
-        await _context.SaveChangesAsync();
 
         return Ok(ToResponse(plan));
     }
@@ -186,6 +186,7 @@ public class WeeklyPlansController : ControllerBase
         };
     }
 
+
     private static WorkoutSummaryResponse? ToWorkoutSummary(Workout? workout)
     {
         if (workout == null)
@@ -197,6 +198,7 @@ public class WeeklyPlansController : ControllerBase
             Name = workout.Name,
             Description = workout.Description,
             isDefault = workout.isDefault,
+            CreatedAt = workout.CreatedAt,
             WorkoutExercises = workout.WorkoutExercises
                 .OrderBy(we => we.OrderIndex)
                 .Select(we => new WorkoutExerciseResponse
@@ -238,6 +240,9 @@ public class WeeklyPlansController : ControllerBase
             .Include("Week.Sunday.WorkoutExercises.Exercise")
             .Include("Week.Sunday.WorkoutExercises.Sets");
     }
+
+
+
 }
 
 public class AssignWorkoutRequest

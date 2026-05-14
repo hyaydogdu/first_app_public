@@ -7,14 +7,22 @@ import 'package:flutter/material.dart';
 class WeekDayCard extends StatelessWidget {
   final String day;
   final WeeklyPlanUiModel weeklyPlan;
+  final Future<void> Function(String day, WorkoutUiModel workout)?
+  onWorkoutClosed;
 
-  const WeekDayCard({super.key, required this.day, required this.weeklyPlan});
+  const WeekDayCard({
+    super.key,
+    required this.day,
+    required this.weeklyPlan,
+    this.onWorkoutClosed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return _WeekDayCardBase(
       day: day,
       weeklyPlan: weeklyPlan,
+      onWorkoutClosed: onWorkoutClosed,
       boxRightCount: 0,
       rightSideBuilder: (workout) => [
         TextBox(
@@ -39,12 +47,15 @@ class WeekDayCardEdit extends StatelessWidget {
   final WeeklyPlanUiModel weeklyPlan;
   final Future<void> Function(String day, WorkoutUiModel? workout)
   onWorkoutChanged;
+  final Future<void> Function(String day, WorkoutUiModel workout)?
+  onWorkoutClosed;
 
   const WeekDayCardEdit({
     super.key,
     required this.day,
     required this.weeklyPlan,
     required this.onWorkoutChanged,
+    this.onWorkoutClosed,
   });
 
   @override
@@ -52,6 +63,7 @@ class WeekDayCardEdit extends StatelessWidget {
     return _WeekDayCardBase(
       day: day,
       weeklyPlan: weeklyPlan,
+      onWorkoutClosed: onWorkoutClosed,
       boxRightCount: 1,
       rightSideBuilder: (theWorkout) => [
         MyTextButton(
@@ -85,11 +97,14 @@ class _WeekDayCardBase extends StatelessWidget {
   final String day;
   final WeeklyPlanUiModel weeklyPlan;
   final int boxRightCount;
+  final Future<void> Function(String day, WorkoutUiModel workout)?
+  onWorkoutClosed;
   final List<Widget> Function(WorkoutUiModel? workout) rightSideBuilder;
 
   const _WeekDayCardBase({
     required this.day,
     required this.weeklyPlan,
+    this.onWorkoutClosed,
     this.boxRightCount = 0,
     required this.rightSideBuilder,
   });
@@ -111,6 +126,7 @@ class _WeekDayCardBase extends StatelessWidget {
                   builder: (_) => WorkoutViewPage(workout: theWorkout),
                 ),
               );
+              await onWorkoutClosed?.call(day, theWorkout);
             },
       child: BorderBox(
         boxColor: cardColor,
@@ -147,7 +163,9 @@ class _WeekDayCardBase extends StatelessWidget {
                     boxLeft: 1,
                     height: defaultHeight * 3,
                     child: Text(
-                      theWorkout?.description ?? "Enjoy your rest day!",
+                      theWorkout == null
+                          ? "Rest Day"
+                          : theWorkout.description?.trim() ?? "Workout",
                       style: textStyleSGrey,
                     ),
                   ),

@@ -1,5 +1,6 @@
 import 'package:first_app/Items/Barrel/item_barrel.dart';
 import 'package:first_app/Services/weekly_plan_api.dart';
+import 'package:first_app/Services/workout_api.dart';
 import 'package:first_app/models/week_ui_model.dart';
 import 'package:first_app/models/weekly_plan_ui_model.dart';
 import 'package:first_app/models/workout_ui_model.dart';
@@ -24,6 +25,9 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
   void initState() {
     super.initState();
     weeklyPlan = widget.weeklyPlan;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadWeeklyPlanDetails();
+    });
   }
 
   Future<void> _onWorkoutChanged(String day, WorkoutUiModel? workout) async {
@@ -45,12 +49,14 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
   }
 
   Future<void> _toggleViewMode() async {
-    {
-      setState(() {
-        editMode = false;
-        _save();
-      });
-    }
+    await _save();
+    await _loadWeeklyPlanDetails();
+
+    if (!mounted) return;
+
+    setState(() {
+      editMode = false;
+    });
   }
 
   void _deleteWeeklyPlan() async {
@@ -88,6 +94,38 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Delete failed")));
+    }
+  }
+
+  Future<void> _loadWeeklyPlanDetails() async {
+    try {
+      final updatedPlan = await WeeklyPlanApi.getWeeklyPlanById(weeklyPlan.id);
+      if (!mounted) return;
+
+      setState(() {
+        weeklyPlan = updatedPlan;
+      });
+    } catch (e) {
+      debugPrint("Failed to refresh weekly plan: $e");
+    }
+  }
+
+  Future<void> _refreshDayWorkout(String day, WorkoutUiModel workout) async {
+    try {
+      final updatedWorkout = await WorkoutApi.getWorkoutById(workout.id);
+      if (!mounted) return;
+
+      setState(() {
+        weeklyPlan = _copyWeeklyPlanWithDayWorkout(
+          weeklyPlan,
+          updatedWorkout,
+          day,
+        );
+        _loadWeeklyPlanDetails();
+      });
+    } catch (e) {
+      debugPrint("Failed to refresh day workout: $e");
+      await _loadWeeklyPlanDetails();
     }
   }
 
@@ -133,23 +171,34 @@ class _WeeklyplanViewPageState extends State<WeeklyPlanPage> {
           ? _EditMode(
               weeklyPlan: weeklyPlan,
               onWorkoutChanged: _onWorkoutChanged,
+              onWorkoutClosed: _refreshDayWorkout,
             )
-          : _ViewMode(weeklyPlan: weeklyPlan),
+          : _ViewMode(
+              weeklyPlan: weeklyPlan,
+              onWorkoutClosed: _refreshDayWorkout,
+            ),
     );
   }
 }
 
 class _ViewMode extends StatelessWidget {
   final WeeklyPlanUiModel weeklyPlan;
-  const _ViewMode({required this.weeklyPlan});
+  final Future<void> Function(String day, WorkoutUiModel workout)
+  onWorkoutClosed;
+
+  const _ViewMode({required this.weeklyPlan, required this.onWorkoutClosed});
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        SizedBox(height: defaultHeight),
+        _Header(weeklyPlan),
         for (final day in _weekDays)
-          WeekDayCard(day: day, weeklyPlan: weeklyPlan),
+          WeekDayCard(
+            day: day,
+            weeklyPlan: weeklyPlan,
+            onWorkoutClosed: onWorkoutClosed,
+          ),
       ],
     );
   }
@@ -159,23 +208,171 @@ class _EditMode extends StatelessWidget {
   final WeeklyPlanUiModel weeklyPlan;
   final Future<void> Function(String day, WorkoutUiModel? workout)
   onWorkoutChanged;
+  final Future<void> Function(String day, WorkoutUiModel workout)
+  onWorkoutClosed;
 
-  const _EditMode({required this.weeklyPlan, required this.onWorkoutChanged});
+  const _EditMode({
+    required this.weeklyPlan,
+    required this.onWorkoutChanged,
+    required this.onWorkoutClosed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        SizedBox(height: defaultHeight),
+        _Header(weeklyPlan),
         for (final day in _weekDays)
           WeekDayCardEdit(
             day: day,
             weeklyPlan: weeklyPlan,
             onWorkoutChanged: onWorkoutChanged,
+            onWorkoutClosed: onWorkoutClosed,
           ),
       ],
     );
   }
+}
+
+class _Header extends StatelessWidget {
+  final WeeklyPlanUiModel weeklyPlan;
+  const _Header(this.weeklyPlan);
+
+  @override
+  Widget build(BuildContext context) {
+    return Box(
+      boxColor: color_2,
+      softCorners: true,
+      edgeSpaceHorizontal: true,
+      edgeSpaceAllSmall: true,
+      child: Box(
+        boxColor: color_2,
+        edgeSpaceAllBig: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              textCase("${weeklyPlan.name} program", TextCaseMode.title),
+              style: textStyleM,
+              textAlign: TextAlign.start,
+            ),
+            SizedBox(height: defaultHeight),
+            Text(
+              "Stay consistent and keep training",
+              style: textStyleSGrey,
+              textAlign: TextAlign.start,
+            ),
+            SizedBox(height: defaultHeight),
+            Box(
+              boxColor: color_1,
+              softCorners: true,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text("Active Days", style: textStyleSGrey),
+                        Text(
+                          "${_activeDays(weeklyPlan).toString()}/7",
+                          style: textStyleM,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: defaultHeight * 4,
+                    child: VerticalDivider(
+                      width: 3,
+                      thickness: 3,
+                      color: color_2,
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text("Exercises", style: textStyleSGrey),
+                        Text(
+                          _totalExercises(weeklyPlan).toString(),
+                          style: textStyleM,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: defaultHeight * 4,
+                    child: VerticalDivider(
+                      width: 3,
+                      thickness: 3,
+                      color: color_2,
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Text("Sets", style: textStyleSGrey),
+                        Text(
+                          _totalSets(weeklyPlan).toString(),
+                          style: textStyleM,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+int _activeDays(WeeklyPlanUiModel plan) {
+  final week = plan.week;
+  if (week == null) return 0;
+
+  return [
+    week.mondayWorkoutId ?? week.mondayWorkout?.id,
+    week.tuesdayWorkoutId ?? week.tuesdayWorkout?.id,
+    week.wednesdayWorkoutId ?? week.wednesdayWorkout?.id,
+    week.thursdayWorkoutId ?? week.thursdayWorkout?.id,
+    week.fridayWorkoutId ?? week.fridayWorkout?.id,
+    week.saturdayWorkoutId ?? week.saturdayWorkout?.id,
+    week.sundayWorkoutId ?? week.sundayWorkout?.id,
+  ].where((id) => id != null).length;
+}
+
+int _totalExercises(WeeklyPlanUiModel plan) {
+  return _workoutsInPlan(
+    plan,
+  ).fold<int>(0, (total, workout) => total + workout.workoutExercises.length);
+}
+
+int _totalSets(WeeklyPlanUiModel plan) {
+  return _workoutsInPlan(plan).fold<int>(
+    0,
+    (total, workout) =>
+        total +
+        workout.workoutExercises.fold<int>(
+          0,
+          (exerciseTotal, exercise) => exerciseTotal + exercise.setList.length,
+        ),
+  );
+}
+
+List<WorkoutUiModel> _workoutsInPlan(WeeklyPlanUiModel plan) {
+  final week = plan.week;
+  if (week == null) return [];
+
+  return [
+    week.mondayWorkout,
+    week.tuesdayWorkout,
+    week.wednesdayWorkout,
+    week.thursdayWorkout,
+    week.fridayWorkout,
+    week.saturdayWorkout,
+    week.sundayWorkout,
+  ].whereType<WorkoutUiModel>().toList();
 }
 
 const List<String> _weekDays = [
