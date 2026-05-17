@@ -223,6 +223,7 @@ namespace FirstApp.Api.Controllers
                         Id = we.Id,
                         ExerciseId = we.ExerciseId,
                         ExerciseName = we.Exercise.Name,
+                        ExerciseType = we.Exercise.ExerciseType.ToString(),
                         ExerciseVideoUrl = we.Exercise.VideoUrl,
                         ExerciseImageUrl = we.Exercise.ImageUrl,
                         OrderIndex = we.OrderIndex,

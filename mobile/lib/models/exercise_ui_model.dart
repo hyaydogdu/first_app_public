@@ -1,7 +1,10 @@
+enum ExerciseType { bodyweightBased, weightBased }
+
 class ExerciseUiModel {
   final int id;
   final String name;
   final String? notes;
+  final ExerciseType exerciseType;
   final String? imageUrl;
   final String? videoUrl;
 
@@ -9,6 +12,7 @@ class ExerciseUiModel {
     required this.id,
     required this.name,
     this.notes,
+    this.exerciseType = ExerciseType.weightBased,
     this.imageUrl,
     this.videoUrl,
   });
@@ -18,8 +22,15 @@ class ExerciseUiModel {
       id: json['id'],
       name: json['name'],
       notes: json['notes'],
+      exerciseType: parseExerciseType(json['exerciseType']),
       imageUrl: json['imageUrl'],
       videoUrl: json['videoUrl'],
     );
   }
+}
+
+ExerciseType parseExerciseType(dynamic value) {
+  return value == 'BodyweightBased'
+      ? ExerciseType.bodyweightBased
+      : ExerciseType.weightBased;
 }

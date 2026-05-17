@@ -17,6 +17,7 @@ public class WorkoutExerciseResponse
     public int Id { get; set; }
     public int ExerciseId { get; set; }
     public string ExerciseName { get; set; } = null!;
+    public string ExerciseType { get; set; } = null!;
 
     public string? ExerciseVideoUrl { get; set; }
     public string? ExerciseImageUrl { get; set; }

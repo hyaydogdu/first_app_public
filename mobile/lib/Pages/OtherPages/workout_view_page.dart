@@ -9,8 +9,13 @@ import 'package:first_app/models/workout_ui_model.dart';
 
 class WorkoutViewPage extends DefaultPage {
   final WorkoutUiModel workout;
+  final bool isEditing;
 
-  const WorkoutViewPage({super.key, required this.workout});
+  const WorkoutViewPage({
+    super.key,
+    required this.workout,
+    this.isEditing = false,
+  });
 
   @override
   String get pageName => workout.name;
@@ -20,9 +25,9 @@ class WorkoutViewPage extends DefaultPage {
 }
 
 class _WorkoutPageState extends State<WorkoutViewPage> {
+  bool _isEditing = false;
   final Map<int, bool> expandedMap = {};
-  bool isEditing = false;
-  bool isLoadingWorkout = false;
+  bool _isLoadingWorkout = false;
   late WorkoutUiModel currentWorkout;
   WorkoutUiModel? editingWorkout;
 
@@ -37,6 +42,12 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
     descriptionController = TextEditingController(
       text: currentWorkout.description ?? "",
     );
+
+    if (widget.isEditing) {
+      _isEditing = true;
+      editingWorkout = _copyWorkout(currentWorkout);
+    }
+
     _loadWorkoutDetails();
   }
 
@@ -49,7 +60,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
 
   Future<void> _loadWorkoutDetails() async {
     setState(() {
-      isLoadingWorkout = true;
+      _isLoadingWorkout = true;
     });
 
     try {
@@ -57,10 +68,11 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
       if (!mounted) return;
 
       setState(() {
-        if (!isEditing) {
-          currentWorkout = workout;
-          nameController.text = workout.name;
-          descriptionController.text = workout.description ?? "";
+        currentWorkout = workout;
+        nameController.text = workout.name;
+        descriptionController.text = workout.description ?? "";
+        if (_isEditing) {
+          editingWorkout = _copyWorkout(workout);
         }
       });
     } catch (e) {
@@ -68,7 +80,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
     } finally {
       if (mounted) {
         setState(() {
-          isLoadingWorkout = false;
+          _isLoadingWorkout = false;
         });
       }
     }
@@ -112,7 +124,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
           workoutExercises: workoutToSave.workoutExercises,
         );
         editingWorkout = null;
-        isEditing = false;
+        _isEditing = false;
       });
     } catch (e) {
       debugPrint("❌ SAVE FAILED: $e");
@@ -127,7 +139,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
       editingWorkout = _copyWorkout(currentWorkout);
       nameController.text = currentWorkout.name;
       descriptionController.text = currentWorkout.description ?? "";
-      isEditing = true;
+      _isEditing = true;
     });
   }
 
@@ -177,7 +189,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
         automaticallyImplyLeading: false,
         backgroundColor: color_1,
         elevation: 0,
-        title: Text("WORKOUT", style: textStyleM),
+        title: Text("Workout Page", style: textStyleM),
         centerTitle: true,
         leading: Center(
           child: BarIconButton(onPressed: () => Navigator.pop(context)),
@@ -189,10 +201,10 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
               height: kToolbarHeight,
               child: BarIconButton(
                 buttonIcon: Icon(
-                  isEditing ? Icons.check_rounded : Icons.edit_note_sharp,
+                  _isEditing ? Icons.check_rounded : Icons.edit_note_sharp,
                 ),
                 onPressed: () async {
-                  if (isEditing) {
+                  if (_isEditing) {
                     await _save();
                   } else {
                     _startEditing();
@@ -213,7 +225,7 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
           ],
         ],
       ),
-      body: isEditing
+      body: _isEditing
           ? _EditMode(
               nameController: nameController,
               descriptionController: descriptionController,
@@ -241,10 +253,10 @@ class _WorkoutPageState extends State<WorkoutViewPage> {
             defaultHeight * 3 / 4,
           ),
           child: MyTextButton(
-            text: isLoadingWorkout ? "Loading..." : "Go to Workout",
-            color: isLoadingWorkout ? Colors.grey.shade400 : null,
+            text: _isLoadingWorkout ? "Loading..." : "Go to Workout",
+            color: _isLoadingWorkout ? Colors.grey.shade400 : null,
             onPressed: () async {
-              if (isLoadingWorkout) return;
+              if (_isLoadingWorkout) return;
               await Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -284,50 +296,22 @@ class _ViewMode extends StatelessWidget {
     final sortedExercises = [...workout.workoutExercises]
       ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
 
-    return Column(
-      children: [
-        Flexible(
-          flex: 1,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: defaultHeight * 2,
-                child: Text(
-                  workout.name.toUpperCase(),
-                  style: textStyleM,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(
-                height: defaultHeight * 2,
-                child: Text(
-                  workout.description?.toLowerCase() ?? "",
-                  style: textStyleS,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const Divider(),
-        Flexible(
-          flex: 5,
-          child: ListView.builder(
-            padding: EdgeInsets.only(bottom: defaultHeight * 5),
-            itemCount: sortedExercises.length,
-            itemBuilder: (context, index) {
-              final we = sortedExercises[index];
-              final stableKey = we.exerciseId * 100000 + we.orderIndex;
-              return ViewWorkoutExerciseCard(
-                we: we,
-                expandedMap: expandedMap,
-                stableKey: stableKey,
-              );
-            },
-          ),
-        ),
-      ],
+    return ListView.builder(
+      padding: EdgeInsets.only(bottom: defaultHeight * 5),
+      itemCount: sortedExercises.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _Header(workout: workout);
+        }
+
+        final we = sortedExercises[index - 1];
+        final stableKey = we.exerciseId * 100000 + we.orderIndex;
+        return ViewWorkoutExerciseCard(
+          we: we,
+          expandedMap: expandedMap,
+          stableKey: stableKey,
+        );
+      },
     );
   }
 }
@@ -364,6 +348,7 @@ class _EditModeState extends State<_EditMode> {
           id: 0,
           exerciseId: selected.id,
           exerciseName: selected.name,
+          exerciseType: selected.exerciseType,
           exerciseImageUrl: selected.imageUrl,
           videoUrl: selected.videoUrl,
           orderIndex: widget.workout.workoutExercises.length,
@@ -412,146 +397,339 @@ class _EditModeState extends State<_EditMode> {
     final sortedExercises = [...widget.workout.workoutExercises]
       ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
 
-    return Column(
+    return Stack(
       children: [
-        Flexible(
-          flex: 1,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        ReorderableListView.builder(
+          header: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: widget.nameController,
-                  style: textStyleM,
-                  textAlign: TextAlign.center,
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      borderSide: BorderSide(
-                        strokeAlign: BorderSide.strokeAlignCenter,
-                      ),
-                    ),
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
+              _Header(
+                workout: widget.workout,
+                isEditing: true,
+                nameController: widget.nameController,
+                descriptionController: widget.descriptionController,
               ),
-              SizedBox(height: defaultHeight / 2),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: widget.descriptionController,
-                  style: textStyleS,
-                  textAlign: TextAlign.center,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      borderSide: BorderSide(),
-                    ),
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ),
-              ),
+              // const Divider(),
             ],
           ),
-        ),
-        const Divider(),
-        Flexible(
-          flex: 5,
-          child: Stack(
-            children: [
-              ReorderableListView.builder(
-                padding: EdgeInsets.only(
-                  bottom: defaultHeight * 6,
-                ), // buton için boşluk
-                itemCount: sortedExercises.length,
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) newIndex--;
+          padding: EdgeInsets.only(
+            bottom: defaultHeight * 6,
+          ), // buton için boşluk
+          itemCount: sortedExercises.length,
+          onReorder: (oldIndex, newIndex) {
+            setState(() {
+              if (newIndex > oldIndex) newIndex--;
 
-                    final list = [...widget.workout.workoutExercises]
-                      ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+              final list = [...widget.workout.workoutExercises]
+                ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
 
-                    final moved = list.removeAt(oldIndex);
-                    list.insert(newIndex, moved);
+              final moved = list.removeAt(oldIndex);
+              list.insert(newIndex, moved);
 
-                    for (int i = 0; i < list.length; i++) {
-                      list[i] = list[i].copyWith(orderIndex: i);
-                    }
+              for (int i = 0; i < list.length; i++) {
+                list[i] = list[i].copyWith(orderIndex: i);
+              }
 
-                    widget.workout.workoutExercises
-                      ..clear()
-                      ..addAll(list);
-                  });
-                },
-                itemBuilder: (context, index) {
-                  final we = sortedExercises[index];
+              widget.workout.workoutExercises
+                ..clear()
+                ..addAll(list);
+            });
+          },
+          itemBuilder: (context, index) {
+            final we = sortedExercises[index];
 
-                  return EditWorkoutExerciseCard(
-                    key: ValueKey(_stableExerciseKey(we)),
-                    listIndex: index,
-                    we: we,
-                    expandedMap: widget.expandedMap,
-                    stableKey: _stableExerciseKey(we),
-                    onDeleteExercise: () => deleteExercise(we),
-                    onAddSet: () => addSetToExercise(we),
-                    onUpdateSet: (setIndex, updatedSet) {
-                      setState(() {
-                        final exIndex = widget.workout.workoutExercises
-                            .indexWhere((e) => e.orderIndex == we.orderIndex);
-                        if (exIndex == -1) return;
-                        final ex = widget.workout.workoutExercises[exIndex];
-
-                        final newSetList = [...ex.setList];
-                        newSetList[setIndex] = updatedSet;
-
-                        widget.workout.workoutExercises[exIndex] = ex.copyWith(
-                          setList: newSetList,
-                        );
-                      });
-                    },
-                    onDeleteSet: (setIndex) {
-                      setState(() {
-                        final exIndex = widget.workout.workoutExercises
-                            .indexWhere((e) => e.orderIndex == we.orderIndex);
-                        if (exIndex == -1) return;
-                        final ex = widget.workout.workoutExercises[exIndex];
-
-                        final newSetList = [...ex.setList]..removeAt(setIndex);
-
-                        final fixed = [
-                          for (int i = 0; i < newSetList.length; i++)
-                            newSetList[i].copyWith(setIndex: i),
-                        ];
-
-                        widget.workout.workoutExercises[exIndex] = ex.copyWith(
-                          setList: fixed,
-                        );
-                      });
-                    },
+            return EditWorkoutExerciseCard(
+              key: ValueKey(_stableExerciseKey(we)),
+              listIndex: index,
+              we: we,
+              expandedMap: widget.expandedMap,
+              stableKey: _stableExerciseKey(we),
+              onDeleteExercise: () => deleteExercise(we),
+              onAddSet: () => addSetToExercise(we),
+              onUpdateSet: (setIndex, updatedSet) {
+                setState(() {
+                  final exIndex = widget.workout.workoutExercises.indexWhere(
+                    (e) => e.orderIndex == we.orderIndex,
                   );
-                },
-              ),
+                  if (exIndex == -1) return;
+                  final ex = widget.workout.workoutExercises[exIndex];
 
-              /// FLOATING ADD EXERCISE BUTTON
-              Positioned(
-                left: defaultHeight,
-                right: defaultHeight,
-                bottom: defaultHeight / 2,
-                child: MyTextButton(
-                  text: "Add Exercise",
-                  color: color_2,
-                  strokeColor: Colors.black,
-                  onPressed: () => addExercise(context),
-                ),
-              ),
-            ],
+                  final newSetList = [...ex.setList];
+                  newSetList[setIndex] = updatedSet;
+
+                  widget.workout.workoutExercises[exIndex] = ex.copyWith(
+                    setList: newSetList,
+                  );
+                });
+              },
+              onDeleteSet: (setIndex) {
+                setState(() {
+                  final exIndex = widget.workout.workoutExercises.indexWhere(
+                    (e) => e.orderIndex == we.orderIndex,
+                  );
+                  if (exIndex == -1) return;
+                  final ex = widget.workout.workoutExercises[exIndex];
+
+                  final newSetList = [...ex.setList]..removeAt(setIndex);
+
+                  final fixed = [
+                    for (int i = 0; i < newSetList.length; i++)
+                      newSetList[i].copyWith(setIndex: i),
+                  ];
+
+                  widget.workout.workoutExercises[exIndex] = ex.copyWith(
+                    setList: fixed,
+                  );
+                });
+              },
+            );
+          },
+        ),
+        Positioned(
+          left: defaultHeight,
+          right: defaultHeight,
+          bottom: defaultHeight / 2,
+          child: MyTextButton(
+            text: "Add Exercise",
+            color: color_2,
+            strokeColor: Colors.black,
+            onPressed: () => addExercise(context),
           ),
         ),
       ],
     );
   }
+}
+
+class _Header extends StatelessWidget {
+  final WorkoutUiModel workout;
+  final bool isEditing;
+  final TextEditingController? nameController;
+  final TextEditingController? descriptionController;
+
+  const _Header({
+    required this.workout,
+    this.isEditing = false,
+    this.nameController,
+    this.descriptionController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final nameField = isEditing
+        ? _HeaderTextField(
+            controller: nameController,
+            style: textStyleM,
+            textCapitalization: TextCapitalization.words,
+            hintText: "Workout name",
+          )
+        : Text(
+            textCase(workout.name, TextCaseMode.title),
+            style: textStyleM,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+
+    final descriptionField = isEditing
+        ? _HeaderTextField(
+            controller: descriptionController,
+            style: textStyleS,
+            textCapitalization: TextCapitalization.sentences,
+            hintText: "Description",
+            minLines: 1,
+            maxLines: 1,
+          )
+        : Text(
+            textCase(workout.description ?? "", TextCaseMode.sentence),
+            style: textStyleS,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+
+    return Box(
+      boxColor: color_2,
+      softCorners: true,
+      edgeSpaceAllSmall: true,
+      edgeSpaceHorizontal: true,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            nameField,
+            const SizedBox(height: 4),
+            descriptionField,
+            const SizedBox(height: 10),
+            Box(
+              boxColor: color_1,
+              softCorners: true,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _HeaderStat(
+                        label: "Exercises",
+                        value: _totalExercises(workout).toString(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: defaultHeight * 2.4,
+                      child: VerticalDivider(thickness: 2, color: color_2),
+                    ),
+                    Expanded(
+                      child: _HeaderStat(
+                        label: "Sets",
+                        value: _totalSets(workout).toString(),
+                      ),
+                    ),
+                    SizedBox(
+                      height: defaultHeight * 2.4,
+                      child: VerticalDivider(thickness: 2, color: color_2),
+                    ),
+                    Expanded(
+                      child: _HeaderStat(
+                        label: "Duration",
+                        value: _formattedDuration(workout),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderTextField extends StatelessWidget {
+  final TextEditingController? controller;
+  final TextStyle style;
+  final String hintText;
+  final TextCapitalization textCapitalization;
+  final int minLines;
+  final int maxLines;
+
+  const _HeaderTextField({
+    required this.controller,
+    required this.style,
+    required this.hintText,
+    required this.textCapitalization,
+    this.minLines = 1,
+    this.maxLines = 1,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.black.withAlpha(70))),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: TextField(
+          controller: controller,
+          style: style,
+          minLines: minLines,
+          maxLines: maxLines,
+          textCapitalization: textCapitalization,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: textStyleSGrey,
+            isDense: true,
+            isCollapsed: true,
+            border: InputBorder.none,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _HeaderStat extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _HeaderStat({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, style: textStyleSGrey),
+        const SizedBox(height: 2),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(value, style: textStyleM),
+        ),
+      ],
+    );
+  }
+}
+
+int _totalExercises(WorkoutUiModel workout) {
+  return workout.workoutExercises.length;
+}
+
+int _totalSets(WorkoutUiModel workout) {
+  return workout.workoutExercises.fold<int>(
+    0,
+    (total, exercise) => total + exercise.setList.length,
+  );
+}
+
+int _totalDurationSeconds(WorkoutUiModel workout) {
+  return _totalRestSeconds(workout) + _totalRepSeconds(workout);
+}
+
+int _totalRestSeconds(WorkoutUiModel workout) {
+  return workout.workoutExercises.fold<int>(
+    0,
+    (total, exercise) =>
+        total +
+        exercise.setList.fold<int>(
+          0,
+          (setTotal, set) => setTotal + set.restSeconds,
+        ),
+  );
+}
+
+int _totalRepSeconds(WorkoutUiModel workout) {
+  return workout.workoutExercises.fold<int>(
+    0,
+    (total, exercise) =>
+        total +
+        exercise.setList.fold<int>(
+          0,
+          (setTotal, set) => setTotal + (set.reps == 0 ? 60 : set.reps * 2),
+        ),
+  );
+}
+
+String _formattedDuration(WorkoutUiModel workout) {
+  final totalSeconds = _totalDurationSeconds(workout);
+
+  if (totalSeconds < 60) {
+    return "$totalSeconds sec";
+  }
+
+  final hours = totalSeconds ~/ 3600;
+  final minutes = (totalSeconds % 3600) ~/ 60;
+  final seconds = totalSeconds % 60;
+
+  if (hours > 0 && minutes > 0) {
+    return "${hours}h ${minutes}m";
+  }
+
+  if (hours > 0) {
+    return "${hours}h";
+  }
+
+  if (seconds > 0) {
+    return "${minutes}m ${seconds}s";
+  }
+
+  return "$minutes min";
 }

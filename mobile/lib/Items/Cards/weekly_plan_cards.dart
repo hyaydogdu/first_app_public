@@ -24,6 +24,7 @@ class WeekDayCard extends StatelessWidget {
       weeklyPlan: weeklyPlan,
       onWorkoutClosed: onWorkoutClosed,
       boxRightCount: 0,
+      isediting: false,
       rightSideBuilder: (workout) => [
         TextBox(
           text: workout != null ? "${_findTotalSets(workout)} sets" : "Rest",
@@ -65,6 +66,7 @@ class WeekDayCardEdit extends StatelessWidget {
       weeklyPlan: weeklyPlan,
       onWorkoutClosed: onWorkoutClosed,
       boxRightCount: 1,
+      isediting: true,
       rightSideBuilder: (theWorkout) => [
         MyTextButton(
           color: accentColor,
@@ -97,6 +99,7 @@ class _WeekDayCardBase extends StatelessWidget {
   final String day;
   final WeeklyPlanUiModel weeklyPlan;
   final int boxRightCount;
+  final bool isediting;
   final Future<void> Function(String day, WorkoutUiModel workout)?
   onWorkoutClosed;
   final List<Widget> Function(WorkoutUiModel? workout) rightSideBuilder;
@@ -107,6 +110,7 @@ class _WeekDayCardBase extends StatelessWidget {
     this.onWorkoutClosed,
     this.boxRightCount = 0,
     required this.rightSideBuilder,
+    required this.isediting,
   });
 
   @override
@@ -123,7 +127,10 @@ class _WeekDayCardBase extends StatelessWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => WorkoutViewPage(workout: theWorkout),
+                  builder: (_) => WorkoutViewPage(
+                    workout: theWorkout,
+                    isEditing: isediting,
+                  ),
                 ),
               );
               await onWorkoutClosed?.call(day, theWorkout);

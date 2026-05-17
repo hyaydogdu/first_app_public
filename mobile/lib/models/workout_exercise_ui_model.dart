@@ -1,9 +1,11 @@
+import 'package:first_app/models/exercise_ui_model.dart';
 import 'package:first_app/models/workout_set_ui_model.dart';
 
 class WorkoutExerciseUiModel {
   final int id;
   final int exerciseId;
   final String exerciseName;
+  final ExerciseType exerciseType;
   final String? exerciseImageUrl;
   final String? videoUrl;
   final int orderIndex;
@@ -13,6 +15,7 @@ class WorkoutExerciseUiModel {
     required this.id,
     required this.exerciseId,
     required this.exerciseName,
+    this.exerciseType = ExerciseType.weightBased,
     required this.orderIndex,
     this.exerciseImageUrl,
     this.videoUrl,
@@ -24,6 +27,7 @@ class WorkoutExerciseUiModel {
       id: json['id'],
       exerciseId: json['exerciseId'],
       exerciseName: json['exerciseName'],
+      exerciseType: parseExerciseType(json['exerciseType']),
       exerciseImageUrl: json['exerciseImageUrl'] ?? json['imageUrl'],
       videoUrl: json['videoUrl'] ?? json['exerciseVideoUrl'],
       orderIndex: json['orderIndex'],
@@ -53,6 +57,7 @@ class WorkoutExerciseUiModel {
       id: id,
       exerciseId: exerciseId,
       exerciseName: exerciseName,
+      exerciseType: exerciseType,
       exerciseImageUrl: exerciseImageUrl,
       videoUrl: videoUrl,
       orderIndex: orderIndex ?? this.orderIndex,

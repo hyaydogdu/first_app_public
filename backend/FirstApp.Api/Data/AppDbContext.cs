@@ -28,6 +28,11 @@ public class AppDbContext : DbContext
             .HasIndex(w => w.DefaultKey)
             .IsUnique();
 
+        modelBuilder.Entity<Exercise>()
+            .Property(e => e.ExerciseType)
+            .HasConversion<string>()
+            .HasMaxLength(32);
+
         modelBuilder.Entity<WeeklyPlan>()
             .OwnsOne(wp => wp.Week, week =>
             {
@@ -97,10 +102,10 @@ public class AppDbContext : DbContext
 
         // Seed initial data for Exercises
         modelBuilder.Entity<Exercise>().HasData(
-            new Exercise { Id = 1, Name = "Bench Press", Notes = "Chest", ImageUrl = "/exercises/Photos/foto1.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
-            new Exercise { Id = 2, Name = "Skull Crusher", Notes = "Triceps", ImageUrl = "/exercises/Photos/foto2.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
-            new Exercise { Id = 3, Name = "Pull Up", Notes = "Back", ImageUrl = "/exercises/Photos/foto3.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
-            new Exercise { Id = 4, Name = "Bicep Curl", Notes = "Bicep", ImageUrl = "/exercises/Photos/foto3.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" }
+            new Exercise { Id = 1, Name = "Bench Press", Notes = "Chest", ExerciseType = ExerciseType.WeightBased, ImageUrl = "/exercises/Photos/foto1.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
+            new Exercise { Id = 2, Name = "Skull Crusher", Notes = "Triceps", ExerciseType = ExerciseType.WeightBased, ImageUrl = "/exercises/Photos/foto2.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
+            new Exercise { Id = 3, Name = "Pull Up", Notes = "Back", ExerciseType = ExerciseType.BodyweightBased, ImageUrl = "/exercises/Photos/foto3.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" },
+            new Exercise { Id = 4, Name = "Bicep Curl", Notes = "Bicep", ExerciseType = ExerciseType.WeightBased, ImageUrl = "/exercises/Photos/foto3.jpg", VideoUrl = "/exercises/Videos/Video1.mp4" }
         );
     }
 }

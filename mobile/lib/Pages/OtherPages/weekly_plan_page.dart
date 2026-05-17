@@ -281,11 +281,7 @@ class _Header extends StatelessWidget {
                   ),
                   SizedBox(
                     height: defaultHeight * 4,
-                    child: VerticalDivider(
-                      width: 3,
-                      thickness: 3,
-                      color: color_2,
-                    ),
+                    child: VerticalDivider(thickness: 3, color: color_2),
                   ),
                   Expanded(
                     child: Column(
@@ -300,11 +296,7 @@ class _Header extends StatelessWidget {
                   ),
                   SizedBox(
                     height: defaultHeight * 4,
-                    child: VerticalDivider(
-                      width: 3,
-                      thickness: 3,
-                      color: color_2,
-                    ),
+                    child: VerticalDivider(thickness: 3, color: color_2),
                   ),
                   Expanded(
                     child: Column(

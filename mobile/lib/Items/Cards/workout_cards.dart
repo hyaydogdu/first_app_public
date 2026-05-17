@@ -1,3 +1,4 @@
+import 'package:first_app/models/exercise_ui_model.dart';
 import 'package:first_app/models/workout_set_ui_model.dart';
 import 'package:flutter/material.dart';
 import 'package:first_app/models/workout_exercise_ui_model.dart';
@@ -126,6 +127,7 @@ class _WorkoutExerciseCardState extends State<_WorkoutExerciseCard> {
                     padding: const EdgeInsets.only(top: 12),
                     child: _WorkoutSetTable(
                       sets: widget.we.setList,
+                      exerciseType: widget.we.exerciseType,
                       onTapSet: widget.onTapSet,
                       onDeleteSet: widget.onDeleteSet,
                       onAddSet: widget.onAddSet,
@@ -158,6 +160,7 @@ class _WorkoutExerciseHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
+
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
@@ -201,12 +204,14 @@ class _ExpandButton extends StatelessWidget {
 
 class _WorkoutSetTable extends StatelessWidget {
   final List<WorkoutSetUiModel> sets;
+  final ExerciseType exerciseType;
   final VoidCallback? onAddSet;
   final void Function(int setIndex, WorkoutSetUiModel set)? onTapSet;
   final void Function(int setIndex)? onDeleteSet;
 
   const _WorkoutSetTable({
     required this.sets,
+    required this.exerciseType,
     this.onAddSet,
     this.onTapSet,
     this.onDeleteSet,
@@ -226,6 +231,7 @@ class _WorkoutSetTable extends StatelessWidget {
             _WorkoutSetRow(
               index: i,
               set: set,
+              exerciseType: exerciseType,
               onDelete: onDeleteSet == null ? null : () => onDeleteSet!(i),
               onTap: onTapSet == null ? null : () => onTapSet!(i, set),
             ),
@@ -251,12 +257,14 @@ class _WorkoutSetTable extends StatelessWidget {
 class _WorkoutSetRow extends StatelessWidget {
   final int index;
   final WorkoutSetUiModel set;
+  final ExerciseType exerciseType;
   final VoidCallback? onDelete;
   final VoidCallback? onTap;
 
   const _WorkoutSetRow({
     required this.index,
     required this.set,
+    required this.exerciseType,
     this.onDelete,
     this.onTap,
   });
@@ -272,10 +280,13 @@ class _WorkoutSetRow extends StatelessWidget {
         child: Row(
           children: [
             const Expanded(flex: 1, child: SizedBox()),
-            _setTableText("Set: ${index + 1}"),
-            _setTableText("${set.reps} rep"),
-            _setTableText("${formatWeight(set.weightKg)} KG"),
-            _setTableText("${set.restSeconds} sec"),
+            _setTableText("Set: ${index + 1}", flex: 3),
+            _setTableText(
+              set.reps == 0 ? "Failure" : "${set.reps} rep",
+              flex: 4,
+            ),
+            _setTableText(_weightText(set, exerciseType), flex: 6),
+            _setTableText("${set.restSeconds} sec", flex: 4),
             Expanded(
               flex: 2,
               child: onDelete == null
@@ -311,10 +322,10 @@ class _WorkoutSetHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const Expanded(flex: 1, child: SizedBox()),
-            _setTableText("Set"),
-            _setTableText("Reps"),
-            _setTableText("Weight"),
-            _setTableText("Rest"),
+            _setTableText("Set", flex: 3),
+            _setTableText("Reps", flex: 4),
+            _setTableText("Weight", flex: 6),
+            _setTableText("Rest", flex: 4),
             const Expanded(flex: 2, child: SizedBox()),
           ],
         ),
@@ -323,66 +334,102 @@ class _WorkoutSetHeader extends StatelessWidget {
   }
 }
 
-Widget _setTableText(String text) {
-  return Expanded(flex: 4, child: Text(text, style: textStyleS));
+Widget _setTableText(String text, {int flex = 4}) {
+  return Expanded(
+    flex: flex,
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.center,
+      child: Text(text, style: textStyleS),
+    ),
+  );
+}
+
+String _weightText(WorkoutSetUiModel set, ExerciseType exerciseType) {
+  if (set.weightKg == 0) {
+    return exerciseType == ExerciseType.bodyweightBased ? "Bodyweight" : "-";
+  }
+
+  return "${formatWeight(set.weightKg)} KG";
 }
 
 Future<WorkoutSetUiModel?> _showEditWorkoutSetDialog(
   BuildContext context,
   WorkoutSetUiModel set,
 ) async {
-  final kgCtrl = TextEditingController(text: set.weightKg.toString());
-  final restCtrl = TextEditingController(text: set.restSeconds.toString());
-  final repCtrl = TextEditingController(text: set.reps.toString());
+  return showDialog<WorkoutSetUiModel?>(
+    context: context,
+    builder: (_) => _EditWorkoutSetDialog(set: set),
+  );
+}
 
-  try {
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Edit Set"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: repCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Rep"),
-            ),
-            TextField(
-              controller: kgCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "KG"),
-            ),
-            TextField(
-              controller: restCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Rest (sec)"),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+class _EditWorkoutSetDialog extends StatefulWidget {
+  final WorkoutSetUiModel set;
+
+  const _EditWorkoutSetDialog({required this.set});
+
+  @override
+  State<_EditWorkoutSetDialog> createState() => _EditWorkoutSetDialogState();
+}
+
+class _EditWorkoutSetDialogState extends State<_EditWorkoutSetDialog> {
+  late String kgText;
+  late String restText;
+  late String repText;
+
+  @override
+  void initState() {
+    super.initState();
+    kgText = widget.set.weightKg.toString();
+    restText = widget.set.restSeconds.toString();
+    repText = widget.set.reps.toString();
+  }
+
+  void _save() {
+    final kg = double.tryParse(kgText) ?? widget.set.weightKg;
+    final rest = int.tryParse(restText) ?? widget.set.restSeconds;
+    final rep = int.tryParse(repText) ?? widget.set.reps;
+
+    Navigator.pop(
+      context,
+      widget.set.copyWith(weightKg: kg, restSeconds: rest, reps: rep),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Edit Set"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            initialValue: repText,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Rep"),
+            onChanged: (value) => repText = value,
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Save"),
+          TextFormField(
+            initialValue: kgText,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "KG"),
+            onChanged: (value) => kgText = value,
+          ),
+          TextFormField(
+            initialValue: restText,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Rest (sec)"),
+            onChanged: (value) => restText = value,
           ),
         ],
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
+        TextButton(onPressed: _save, child: const Text("Save")),
+      ],
     );
-
-    if (ok != true) return null;
-
-    final kg = double.tryParse(kgCtrl.text) ?? set.weightKg;
-    final rest = int.tryParse(restCtrl.text) ?? set.restSeconds;
-    final rep = int.tryParse(repCtrl.text) ?? set.reps;
-
-    return set.copyWith(weightKg: kg, restSeconds: rest, reps: rep);
-  } finally {
-    kgCtrl.dispose();
-    restCtrl.dispose();
-    repCtrl.dispose();
   }
 }

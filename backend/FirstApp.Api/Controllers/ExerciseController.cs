@@ -26,6 +26,7 @@ public class ExercisesController : ControllerBase
                 e.Id,
                 e.Name,
                 e.Notes,
+                ExerciseType = e.ExerciseType.ToString(),
                 e.ImageUrl,
                 e.VideoUrl
             })
